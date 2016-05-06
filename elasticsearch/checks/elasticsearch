@@ -1,0 +1,155 @@
+#!/usr/bin/python
+##### NICE ELASTICSEARCH HEAD WITH GPL STUFF #####
+
+# A common section
+
+status_fields = (
+	'cluster_name',
+	'status',
+	'timed_out',
+	'number_of_nodes',
+	'number_of_data_nodes',
+	'active_primary_shards',
+	'active_shards',
+	'relocating_shards',
+	'initializing_shards',
+	'unassigned_shards'
+	)
+
+def elasticsearch_parse(info):
+	data = {}
+	for line in info:
+		data[line[0]] = line[1]
+	return data
+
+
+
+### ELASTICSEARCH.CLUSTERNAME ### 
+
+def inventory_elasticsearch_cluster_name(info):
+    if info:
+        return [ (None, {}) ]
+
+def check_elasticsearch_cluster_name(item, params, info):
+    data = elasticsearch_parse(info)
+    cluster_name = data[status_fields[0]]
+    return 0, cluster_name
+
+check_info["elasticsearch.cluster_name"] = {
+	'check_function':            check_elasticsearch_cluster_name,
+	'inventory_function':        inventory_elasticsearch_cluster_name,
+	'service_description':       'elasticsearch cluster name',
+}
+
+
+
+### ELASTICSEARCH.STATUS ###
+
+def inventory_elasticsearch_status(info):
+    data = elasticsearch_parse(info)
+    for item in data.keys():
+    	if item in (status_fields[1], status_fields[2]):
+        	yield item, None
+
+def check_elasticsearch_status(item, params, info):
+    data = elasticsearch_parse(info)
+    if item == status_fields[1]:
+    	color = data[item]
+    	if color == "green":
+    		return 0, "%s" % color
+	elif color == "yellow":
+		return 1, "%s" % color
+	elif color == "red":
+		return 2, "%s" % color
+	else:
+		return 3, "UNKNOWN"
+    elif item == status_fields[2]:
+    	if data[item] == "false":
+    		return 0, "online"
+	else:
+		return 2, "timed out"
+    else:
+	return 3, "UNKNOWN"
+
+check_info["elasticsearch.status"] = {
+	'check_function':            check_elasticsearch_status,
+	'inventory_function':        inventory_elasticsearch_status,
+	'service_description':       'elasticsearch status',
+}
+
+
+
+### ELASTICSEARCH.NODES ###
+
+def inventory_elasticsearch_nodes(info):
+    data = elasticsearch_parse(info)
+    for item in data.keys():
+    	if item in (status_fields[3], status_fields[4]):
+        	yield item, None
+
+def check_elasticsearch_nodes(item, params, info):
+    data = elasticsearch_parse(info)
+    value = int(data[item])
+    perfdata = [ ( item, data[item] ) ]
+    if item == status_fields[3]:
+    	return 0, "number of nodes: %d" % value, perfdata
+    elif item == status_fields[4]:
+    	return 0, "number of data nodes: %d" % value, perfdata
+    else:
+    	return 3, "UNKNOWN"
+
+check_info["elasticsearch.nodes"] = {
+	'check_function':            check_elasticsearch_nodes,
+	'inventory_function':        inventory_elasticsearch_nodes,
+	'service_description':       'elasticsearch nodes',
+	'has_perfdata':              True,
+}
+
+
+### ELASTICSEARCH.SHARDS ###
+
+def inventory_elasticsearch_shards(info):
+    data = elasticsearch_parse(info)
+    for item in data.keys():
+    	if item in (
+    		status_fields[5],
+    		status_fields[6],
+    		status_fields[7],
+    		status_fields[8],
+    		status_fields[9]
+    		):
+        	yield item, None
+
+def check_elasticsearch_shards(item, params, info):
+    data = elasticsearch_parse(info)
+    value = int(data[item])
+    perfdata = [ ( item, data[item] ) ]
+    if item == status_fields[5]:
+	return 0, "active primary shards: %d" % value, perfdata
+    elif item == status_fields[6]:
+	return 0, "active shards: %d" % value, perfdata
+    elif item == status_fields[7]:
+	if value > 0:
+		return 1, "relocating shards: %d" % value, perfdata
+	else:
+		return 0, "relocating shards: %d" % value, perfdata
+    elif item == status_fields[8]:
+	if value > 0:
+		return 1, "initializing shards: %d" % value, perfdata
+	else:
+		return 0, "initializing shards: %d" % value, perfdata
+    elif item == status_fields[9]:
+	if value > 0:
+		return 2, "unassigned shards: %d" % value, perfdata
+	else:
+		return 0, "unassigned shards: %d" % value, perfdata
+    else:
+	return 3, "UNKNOWN"
+
+check_info["elasticsearch.shards"] = {
+	'check_function':            check_elasticsearch_shards,
+	'inventory_function':        inventory_elasticsearch_shards,
+	'service_description':       'elasticsearch shards',
+	'has_perfdata':              True,
+}
+

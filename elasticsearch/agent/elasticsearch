@@ -1,0 +1,10 @@
+#!/bin/bash
+echo '<<<elasticsearch>>>'
+BASE_URL=`netstat -tulnp | grep 9200 | awk '{print $4}'`
+URL="http://${BASE_URL}/_cluster/health?pretty=true"
+
+if hash curl 2>/dev/null; then
+    curl -s $URL > /tmp/elasticsearch_check_agent
+	cat /tmp/elasticsearch_check_agent | while read a; do echo $a | sed -e 's/[/":,{}]//g' | sed '/^$/d'; done    
+fi
+
