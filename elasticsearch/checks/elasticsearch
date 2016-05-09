@@ -114,20 +114,20 @@ def check_elasticsearch_status(item, params, info):
     if item == status_fields[1]:
         color = data[item]
         if color == "green":
-    	    return 0, "%s" % color
-    elif color == "yellow":
-	    return 1, "%s" % color
-    elif color == "red":
-	    return 2, "%s" % color
-    else:
-	    return 3, "UNKNOWN"
+            return 0, "%s" % color
+        elif color == "yellow":
+	   	    return 1, "%s" % color
+        elif color == "red":
+	   	    return 2, "%s" % color
+        else:
+	        return 3, "UNKNOWN"
     elif item == status_fields[2]:
         if data[item] == "false":
             return 0, "online"
+        else:
+	        return 2, "timed out"
     else:
-	    return 2, "timed out"
-    else:
-    return 3, "UNKNOWN"
+        return 3, "UNKNOWN"
 
 check_info["elasticsearch.status"] = {
     'check_function':            check_elasticsearch_status,
@@ -203,26 +203,26 @@ def check_elasticsearch_shards(item, params, info):
     value = int(data[item])
     perfdata = [ ( item, data[item] ) ]
     if item == status_fields[5]:
-    return 0, "active primary shards: %d" % value, perfdata
+        return 0, "active primary shards: %d" % value, perfdata
     elif item == status_fields[6]:
-    return 0, "active shards: %d" % value, perfdata
+        return 0, "active shards: %d" % value, perfdata
     elif item == status_fields[7]:
-    if value > 0:
-        return 1, "relocating shards: %d" % value, perfdata
-    else:
-        return 0, "relocating shards: %d" % value, perfdata
+        if value > 0:
+            return 1, "relocating shards: %d" % value, perfdata
+        else:
+            return 0, "relocating shards: %d" % value, perfdata
     elif item == status_fields[8]:
-    if value > 0:
-        return 1, "initializing shards: %d" % value, perfdata
-    else:
-        return 0, "initializing shards: %d" % value, perfdata
+        if value > 0:
+            return 1, "initializing shards: %d" % value, perfdata
+        else:
+            return 0, "initializing shards: %d" % value, perfdata
     elif item == status_fields[9]:
-    if value > 0:
-        return 2, "unassigned shards: %d" % value, perfdata
+        if value > 0:
+            return 2, "unassigned shards: %d" % value, perfdata
+        else:
+            return 0, "unassigned shards: %d" % value, perfdata
     else:
-        return 0, "unassigned shards: %d" % value, perfdata
-    else:
-    return 3, "UNKNOWN"
+        return 3, "UNKNOWN"
 
 check_info["elasticsearch.shards"] = {
     'check_function':            check_elasticsearch_shards,
