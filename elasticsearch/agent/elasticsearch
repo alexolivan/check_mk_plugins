@@ -1,4 +1,33 @@
-#!/bin/bash
+#!/bin/sh
+# +---------------------------------------------------------------------+
+# |          _           _   _                              _           |
+# |      ___| | __ _ ___| |_(_) ___ ___  ___  __ _ _ __ ___| |__        |
+# |     / _ \ |/ _` / __| __| |/ __/ __|/ _ \/ _` | '__/ __| '_ \       |
+# |    |  __/ | (_| \__ \ |_| | (__\__ \  __/ (_| | | | (__| | | |      |
+# |     \___|_|\__,_|___/\__|_|\___|___/\___|\__,_|_|  \___|_| |_|      |
+# |                                                                     |
+# | Copyright Alejandro Olivan 2016                 alex@alexolivan.com |
+# +---------------------------------------------------------------------+
+# | A Check_mk agent to monitor elasticsearch 1.5 on Debian systems     |
+# | This file contains plugin agent definition .                        |
+# +---------------------------------------------------------------------+
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, 
+# MA  02110-1301, USA.
+
+
 echo '<<<elasticsearch>>>'
 BASE_URL=`netstat -tulnp | grep 9200 | awk '{print $4}'`
 URL="http://${BASE_URL}/_cluster/health?pretty=true"
@@ -7,4 +36,3 @@ if hash curl 2>/dev/null; then
     curl -s $URL > /tmp/elasticsearch_check_agent
 	cat /tmp/elasticsearch_check_agent | while read a; do echo $a | sed -e 's/[/":,{}]//g' | sed '/^$/d'; done    
 fi
-
