@@ -62,7 +62,7 @@ description:
  This check checks Cluster to which node is assigned to by its cluster name
 
 item:
- Single cluster_name item.
+ Single 'cluster_name' item.
 
 examples:
  no configuration needed.

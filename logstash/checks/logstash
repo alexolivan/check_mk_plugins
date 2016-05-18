@@ -135,9 +135,10 @@ def evaluate_percent_value(item, strvalue, valuewarn, valuecrit, message):
 def inventory_logstash_processes(info):
     for item in (
         logstash_status_fields[0],
-        logstash_status_fields[1]
+        logstash_status_fields[1],
+        logstash_status_fields[8]        
     ):
-        yield item, "logstash_default_values"
+        yield item, None
 
 
 def check_logstash_processes(item, params, info):
@@ -160,6 +161,10 @@ def check_logstash_processes(item, params, info):
             return 2, "%s" % pidlist
         else:
             return 3, "UNKNOWN"
+    elif item == logstash_status_fields[8]:
+        for line in info:
+            time = line[7]
+            return 0, "uptime: %s" % time
     else:
         return 3, "UNKNOWN"
 
@@ -167,7 +172,6 @@ check_info["logstash.processes"] = {
     'check_function': check_logstash_processes,
     'inventory_function': inventory_logstash_processes,
     'service_description': 'Logtash processes',
-    'has_perfdata': True,
 }
 
 
@@ -278,11 +282,7 @@ check_info["logstash.memory"] = {
 
 
 def inventory_logstash_cpu(info):
-    for item in (
-        logstash_status_fields[6],
-        logstash_status_fields[8]
-    ):
-        yield item, "logstash_default_values"
+    yield logstash_status_fields[6], "logstash_default_values"
 
 
 def check_logstash_cpu(item, params, info):
@@ -292,10 +292,6 @@ def check_logstash_cpu(item, params, info):
             cpuwarn, cpucrit = params[5]
             message = "System CPU usage: %s"
             return evaluate_percent_value(item, cpu, cpuwarn, cpucrit, message)
-    elif item == logstash_status_fields[8]:
-        for line in info:
-            time = line[7]
-            return 0, "CPU usage time: %s" % time
     else:
         return 3, "UNKNOWN"
 

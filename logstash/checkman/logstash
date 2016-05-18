@@ -1,0 +1,160 @@
+title: logstash
+agents: linux (just tested on Debian Linux)
+catalog: "app","Applications"
+license: GPL
+distribution:
+
+description:
+ This plugin is intended to moniter the status of a logstash instance.
+ The agent part of the plugin uses bash, usage of legacy sh is a TODO.
+ It works nicelly with logstash 1.5 on Debian 8.
+ 
+ The plugin includes separate checks to running processes, cpu usage , 
+ redis server connections, process id/s and uptime.
+
+ It has been developed having some experienced issues in mind: including
+ rogue processes spawning due to a process restart, memory usage, and redis 
+ connectivity status.
+
+ Involved commands used by agent are described below.
+ For connectivity check agains redis server, it checks port tcp 6379
+ Provide another port is used, the agent script variable had to be changed.
+
+ ps aux | grep "[l]ogstash" | awk '{print $2}'
+ netstat -tntap | grep -E "${REDISPORT}.*ESTABLISHED.*${line}.*" | wc -l
+ top -b -n 1 | grep ${line} | awk '{print $5, $6, $7, $9, $10, $11}'
+
+ Example output from agent:
+ <<<logstash>>>
+ 29415 12 2009m 644m 16m 19.8 15.7 1:05.21
+
+ the plugin includes 4 subplugins, with follwing items tree:
+
+
+
+title: logstash.processes
+description:
+ This check checks total account of logstash processes and its pids
+
+item:
+ 'total_processes' total account of local running logstash instances
+ 'pids' list of every logstash process pid
+ 'uptime' uptime by process
+
+examples:
+ no configuration needed.
+
+perfdata:
+ No perfdata is generated
+
+inventory:
+ inventory function specifically catches column values 0,1 and 8 from
+ agent output.
+ it yelds items with None value
+
+[parameters]
+Parameters are not needed.
+
+[configuration]
+ no configuration needed.
+
+
+
+title: logstash.memory
+description:
+ This check gets memory usage report per logstash instance.
+
+item:
+ 'virtual_memory' 
+ 'resident_memory'
+ 'shared_memory'
+ 'memory_usage'
+
+examples:
+ logstash_default_values[1] = (128000, 512000)
+ logstash_default_values[2] = (128000, 512000)
+ logstash_default_values[3] = (128000, 512000)
+ logstash_default_values[4] = (33, 66)
+
+perfdata:
+ All items generate value, warn, crit perfdata
+ default values are 0, 0 for every item except 'memory_usage'
+ 'memory_usage' comes with 50 and 75 values for warn and crit
+
+inventory:
+ inventory function specifically catches column values 2,3,4 and 5 from
+ agent output.
+ it yelds items with logstash_default_values full list
+
+[parameters]
+ Parameters are common in al module via the list of tupples
+ logstash_default_values
+
+ 'virtual_memory' -> logstash_default_values[1].
+ 'resident_memory' -> logstash_default_values[2].
+ 'shared_memory' -> logstash_default_values[3].
+ 'memory_usage' -> logstash_default_values[4].
+
+[configuration]
+ no configuration needed.
+
+
+
+title: logstash.redis
+description:
+ This check gets established redis connections per logstash 
+ instance.
+
+item:
+ Single 'redis_connections' item.
+
+examples:
+ logstash_default_values[1] = (1, 0)
+
+perfdata:
+ The single Item generates value, warn, crit perfdata at
+ default values are 0, 0.
+
+inventory:
+ inventory function specifically catches column values 2 from
+ agent output.
+ it yelds items with logstash_default_values full list
+
+[parameters]
+ Parameters are common in al module via the list of tupples
+ logstash_default_values
+
+ 'redis_connections' -> logstash_default_values[0].
+
+[configuration]
+ no configuration needed.
+
+
+
+title: logstash.cpu
+description:
+ This check gets cpu usage report per logstash instance
+
+item:
+ 'cpu_usage' 
+
+examples:
+ logstash_default_values[1] = (33, 66)
+
+perfdata:
+ The single Item generates value, warn, crit perfdata at
+ default values are 50, 75.
+
+inventory:
+ inventory function specifically catches column values 2 from
+ agent output.
+ it yelds items with logstash_default_values full list
+
+[parameters]
+ Parameters are common in al module via the list of tupples
+ logstash_default_values
+
+ 'redis_connections' -> logstash_default_values[6].
+
+[configuration]
+ no configuration needed.
