@@ -28,19 +28,23 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, 
 # MA  02110-1301, USA.
 
+
 def perfometer_elasticsearch_cluster_name(row, check_command, perf_data):
     return '', ''
+
 
 def perfometer_elasticsearch_status(row, check_command, perf_data):
     return '', ''
 
+
 def perfometer_elasticsearch_nodes(row, check_command, perf_data):
-    color = { 0: "#6f8", 1: "#ff2", 2: "#f22", 3: "#fa2" }[row["service_state"]]
+    color = {0: "#6f8", 1: "#ff2", 2: "#f22", 3: "#fa2"}[row["service_state"]]
     value = int(perf_data[0][1])
     return "%d" % value, perfometer_logarithmic(value, 100, 5, color)
 
+
 def perfometer_elasticsearch_shards(row, check_command, perf_data):
-    color = { 0: "#6f8", 1: "#ff2", 2: "#f22", 3: "#fa2" }[row["service_state"]]
+    color = {0: "#6f8", 1: "#ff2", 2: "#f22", 3: "#fa2"}[row["service_state"]]
     value = int(perf_data[0][1])
     return "%d" % value, perfometer_logarithmic(value, 100, 5, color)
 

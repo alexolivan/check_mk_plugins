@@ -1,0 +1,308 @@
+#!/usr/bin/python
+# -*- encoding: utf-8; py-indent-offset: 4 -*-
+# +---------------------------------------------------------------------+
+# |               _                 _            _                      |
+# |              | | ___   __ _ ___| |_ __ _ ___| |__                   |
+# |              | |/ _ \ / _` / __| __/ _` / __| '_ \                  |
+# |              | | (_) | (_| \__ \ || (_| \__ \ | | |                 |
+# |              |_|\___/ \__, |___/\__\__,_|___/_| |_|                 |
+# |                       |___/                                         |
+# |                                                                     |
+# | Copyright Alejandro Olivan 2016                 alex@alexolivan.com |
+# +---------------------------------------------------------------------+
+# | A Check_mk plugin to monitor logstash 1.5 on Debian systems         |
+# | This file contains the check definition / inventory code.           |
+# +---------------------------------------------------------------------+
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, 
+# MA  02110-1301, USA.
+
+# Example output from agent:
+# <<<logstash>>>
+# 29415 12 2009m 644m 16m 19.8 15.7 1:05.21
+
+
+logstash_status_fields = (
+    'total_processes',
+    'pids',
+    'redis_connections',
+    'virtual_memory',
+    'resident_memory',
+    'shared_memory',
+    'cpu_usage',
+    'memory_usage',
+    'cpu_time'
+)
+
+
+logstash_default_values = [
+    (0, 0),
+    (0, 0),
+    (0, 0),
+    (0, 0),
+    (50, 75),
+    (50, 75),
+]
+
+
+def parse_mem_data(value):
+    if value is None:
+        return 0
+    else:
+        if value.isdigit():
+            result = int(value)
+        else:
+            numeric = '0123456789-.'
+            number = ''
+            unit = ''
+            isfloat = False
+            for c in value:
+                if c in numeric:
+                    number += c
+                    if c == '.':
+                        isfloat = True
+                else:
+                    unit += c
+            if isfloat:
+                if unit == 'm':
+                    result = float(number) * 1024
+                elif unit == 'g':
+                    result = float(number) * 1048576
+                else:
+                    result= 0
+            else:
+                if unit == 'm':
+                    result = int(number) * 1024
+                elif unit == 'g':
+                    result = int(number) * 1048576
+                else:
+                    result= 0
+        return result
+
+
+def evaluate_scalar_value(item, value, valuewarn, valuecrit, message):
+    if valuewarn != 0 or valuecrit != 0:
+        perfdata = [(item, value, valuewarn, valuecrit)]
+        if value > valuecrit:
+            return 2, message % value, perfdata
+        elif value > valuewarn:
+            return 1, message % value, perfdata
+        else:
+            return 0, message % value, perfdata
+    else:
+        perfdata = [(item, value)]
+        return 0, message % value, perfdata
+
+
+def evaluate_percent_value(item, strvalue, valuewarn, valuecrit, message):
+    value = float(strvalue)
+    if valuewarn != 0 or valuecrit != 0:
+        perfdata = [(item, value, valuewarn, valuecrit, 0, 100)]
+        if value > valuecrit:
+            return 2, message % value, perfdata
+        elif value > valuewarn:
+            return 1, message % value, perfdata
+        else:
+            return 0, message % value, perfdata
+    else:
+        perfdata = [(item, value)]
+        return 0, message % value, perfdata
+
+
+# +-------------------------------------------------------------------+
+# |           _ __  _ __ ___   ___ ___  ___ ___  ___  ___             |
+# |          | '_ \| '__/ _ \ / __/ _ \/ __/ __|/ _ \/ __|            |
+# |         _| |_) | | | (_) | (_|  __/\__ \__ \  __/\__ \            |
+# |        (_) .__/|_|  \___/ \___\___||___/___/\___||___/            |
+# |          |_|                                                      |
+# |                                                                   |
+# +-------------------------------------------------------------------+
+# | Check current logstash running processes items.                   |
+# +-------------------------------------------------------------------+
+
+def inventory_logstash_processes(info):
+    for item in (
+        logstash_status_fields[0],
+        logstash_status_fields[1]
+    ):
+        yield item, "logstash_default_values"
+
+
+def check_logstash_processes(item, params, info):
+    pidcount = len(info)
+    if item == logstash_status_fields[0]:
+        perfdata = [(item, pidcount)]
+        if pidcount == 1:
+            return 0, "running instances: %d" % pidcount, perfdata
+        elif pidcount > 1:
+            return 2, "running instances: %d" % pidcount, perfdata
+        else:
+            return 3, "UNKNOWN"
+    elif item == logstash_status_fields[1]:
+        pidlist = "pids:"
+        for line in info:
+            pidlist += " %s " % line[0]
+        if pidcount == 1:
+            return 0, "%s" % pidlist
+        elif pidcount > 1:
+            return 2, "%s" % pidlist
+        else:
+            return 3, "UNKNOWN"
+    else:
+        return 3, "UNKNOWN"
+
+check_info["logstash.processes"] = {
+    'check_function': check_logstash_processes,
+    'inventory_function': inventory_logstash_processes,
+    'service_description': 'Logtash processes',
+    'has_perfdata': True,
+}
+
+
+# +-------------------------------------------------------------------+
+# |                                    _ _                            |
+# |                       _ __ ___  __| (_)___                        |
+# |                      | '__/ _ \/ _` | / __|                       |
+# |                     _| | |  __/ (_| | \__ \                       |
+# |                    (_)_|  \___|\__,_|_|___/                       |
+# |                                                                   |
+# +-------------------------------------------------------------------+
+# | Check current logstash redis estiblished connections item.        |
+# +-------------------------------------------------------------------+
+
+
+def inventory_logstash_redis(info):
+    yield logstash_status_fields[2], "logstash_default_values"
+
+
+def check_logstash_redis(item, params, info):
+    message = "established redis connections: %s"
+    if item == logstash_status_fields[2]:
+        for line in info:
+            cons = line[1]
+            conswarn, conscrit = params[0]
+            return evaluate_scalar_value(item, cons, conswarn, conscrit, message)
+    else:
+        return 3, "UNKNOWN"
+
+
+check_info["logstash.redis"] = {
+    'check_function': check_logstash_redis,
+    'inventory_function': inventory_logstash_redis,
+    'service_description': 'Logtash redis connections',
+    'has_perfdata': True,
+}
+
+
+# +-------------------------------------------------------------------+
+# |             _ __ ___   ___ _ __ ___   ___  _ __ _   _             |
+# |            | '_ ` _ \ / _ \ '_ ` _ \ / _ \| '__| | | |            |
+# |           _| | | | | |  __/ | | | | | (_) | |  | |_| |            |
+# |          (_)_| |_| |_|\___|_| |_| |_|\___/|_|   \__, |            |
+# |                                                 |___/             |
+# |                                                                   |
+# +-------------------------------------------------------------------+
+# | Check current logstash memory usage related items.                |
+# +-------------------------------------------------------------------+
+
+
+def inventory_logstash_memory(info):
+    for item in (
+        logstash_status_fields[3],
+        logstash_status_fields[4],
+        logstash_status_fields[5],
+        logstash_status_fields[7]
+    ):
+        yield item, "logstash_default_values"
+
+
+def check_logstash_memory(item, params, info):
+    if item == logstash_status_fields[3]:
+        for line in info:
+            mem = parse_mem_data(line[2])
+            memwarn, memcrit = params[1]
+            message = "virtual memory: %d"
+            return evaluate_scalar_value(item, mem, memwarn, memcrit, message)
+    elif item == logstash_status_fields[4]:
+        for line in info:
+            mem = parse_mem_data(line[3])
+            memwarn, memcrit = params[2]
+            message = "Resident memory: %d"
+            return evaluate_scalar_value(item, mem, memwarn, memcrit, message)
+    elif item == logstash_status_fields[5]:
+        for line in info:
+            mem = parse_mem_data(line[4])
+            memwarn, memcrit = params[3]
+            message = "Shared memory: %d"
+            return evaluate_scalar_value(item, mem, memwarn, memcrit, message)
+    elif item == logstash_status_fields[7]:
+        for line in info:
+            mem = line[6]
+            memwarn, memcrit = params[4]
+            message = "System memory usage: %s"
+            return evaluate_percent_value(item, mem, memwarn, memcrit, message)
+    else:
+        return 3, "UNKNOWN"
+
+
+check_info["logstash.memory"] = {
+    'check_function': check_logstash_memory,
+    'inventory_function': inventory_logstash_memory,
+    'service_description': 'Logtash memory stats',
+    'has_perfdata': True,
+}
+
+
+# +-------------------------------------------------------------------+
+# |                          ___ _ __  _   _                          |
+# |                         / __| '_ \| | | |                         |
+# |                        | (__| |_) | |_| |                         |
+# |                       (_)___| .__/ \__,_|                         |
+# |                             |_|                                   |
+# |                                                                   |
+# +-------------------------------------------------------------------+
+# | Check current logstash cpu usage related items.                   |
+# +-------------------------------------------------------------------+
+
+
+def inventory_logstash_cpu(info):
+    for item in (
+        logstash_status_fields[6],
+        logstash_status_fields[8]
+    ):
+        yield item, "logstash_default_values"
+
+
+def check_logstash_cpu(item, params, info):
+    if item == logstash_status_fields[6]:
+        for line in info:
+            cpu = line[5]
+            cpuwarn, cpucrit = params[5]
+            message = "System CPU usage: %s"
+            return evaluate_percent_value(item, cpu, cpuwarn, cpucrit, message)
+    elif item == logstash_status_fields[8]:
+        for line in info:
+            time = line[7]
+            return 0, "CPU usage time: %s" % time
+    else:
+        return 3, "UNKNOWN"
+
+
+check_info["logstash.cpu"] = {
+    'check_function': check_logstash_cpu,
+    'inventory_function': inventory_logstash_cpu,
+    'service_description': 'Logtash cpu stats',
+    'has_perfdata': True,
+}
