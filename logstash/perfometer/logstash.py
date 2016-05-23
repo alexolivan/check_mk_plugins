@@ -52,7 +52,10 @@ def perfometer_logstash_memory(row, check_command, perf_data):
         value = float(perf_data[0][1])
         return "%.0f%%" % value, perfometer_linear(value, color)
     else:
-        value = int(perf_data[0][1])
+        if isinstance(perf_data[0][1], int):
+            value = int(perf_data[0][1])
+        else:
+            value = float(perf_data[0][1])
         return "%d" % value, perfometer_logarithmic(value, 100, 5, color)
 
 
