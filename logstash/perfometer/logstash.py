@@ -11,7 +11,7 @@
 # | Copyright Alejandro Olivan 2016                 alex@alexolivan.com |
 # +---------------------------------------------------------------------+
 # | A Check_mk plugin to monitor logstash 1.5 on Debian systems         |
-# | This file contains the check definition / inventory code.           |
+# | This file contains plugin perfometer definition.                    |
 # +---------------------------------------------------------------------+
 #
 # This program is free software; you can redistribute it and/or

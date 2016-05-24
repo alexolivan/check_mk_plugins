@@ -1,0 +1,536 @@
+#!/usr/bin/python
+# -*- encoding: utf-8; py-indent-offset: 4 -*-
+# +---------------------------------------------------------------------+
+# |                    _ _                                              |
+# |       _ __ ___  __| (_)___       ___  ___ _ ____   _____ _ __       |
+# |      | '__/ _ \/ _` | / __|_____/ __|/ _ \ '__\ \ / / _ \ '__|      |
+# |      | | |  __/ (_| | \__ \_____\__ \  __/ |   \ V /  __/ |         |
+# |      |_|  \___|\__,_|_|___/     |___/\___|_|    \_/ \___|_|         |
+# |                                                                     |
+# | Copyright Alejandro Olivan 2016                 alex@alexolivan.com |
+# +---------------------------------------------------------------------+
+# | A Check_mk agent to monitor redis-server on Debian systems          |
+# | This file contains the check definition / inventory code.           |
+# +---------------------------------------------------------------------+
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, 
+# MA  02110-1301, USA.
+
+# Example output from agent:
+#<<<redis>>>
+#redis_version 2.4.14
+#redis_git_sha1 00000000
+#redis_git_dirty 0
+#arch_bits 64
+#multiplexing_api epoll
+#gcc_version 4.6.2
+#process_id 15587
+#uptime_in_seconds 2991
+#uptime_in_days 0
+#lru_clock 1698191
+#used_cpu_sys 0.31
+#used_cpu_user 0.52
+#used_cpu_sys_children 0.00
+#used_cpu_user_children 0.00
+#connected_clients 13
+#connected_slaves 0
+#client_longest_output_list 0
+#client_biggest_input_buf 0
+#blocked_clients 2
+#used_memory 850208
+#used_memory_human 830.28K
+#used_memory_rss 1847296
+#used_memory_peak 859592
+#used_memory_peak_human 839.45K
+#mem_fragmentation_ratio 2.17
+#mem_allocator jemalloc-2.2.5
+#loading 0
+#aof_enabled 0
+#changes_since_last_save 0
+#bgsave_in_progress 0
+#last_save_time 1464016603
+#bgrewriteaof_in_progress 0
+#total_connections_received 134
+#total_commands_processed 12201
+#expired_keys 0
+#evicted_keys 0
+#keyspace_hits 0
+#keyspace_misses 0
+#pubsub_channels 0
+#pubsub_patterns 0
+#latest_fork_usec 116
+#vm_enabled 0
+#role master
+
+agent_fields = (
+	(
+        'redis_version',
+        'redis_git_sha1',
+        'redis_git_dirty',
+        'arch_bits',
+        'multiplexing_api',
+        'gcc_version',
+        'mem_allocator'        
+    ),
+    (
+        'loading',
+        'aof_enabled',
+        'changes_since_last_save',
+        'bgsave_in_progress',
+        'last_save_time',
+        'bgrewriteaof_in_progress',
+        'pubsub_channels',
+        'pubsub_patterns',
+        'latest_fork_usec',
+        'vm_enabled',
+        'role'
+    ),
+    (
+        'process_id',
+        'uptime_in_seconds',
+        'uptime_in_days'        	
+    ),
+    (
+        'lru_clock',
+        'used_cpu_sys',
+        'used_cpu_user',
+        'used_cpu_sys_children',
+        'used_cpu_user_children'
+    ),
+    (
+        'used_memory',
+        'used_memory_rss',
+        'used_memory_peak',
+        'mem_fragmentation_ratio'
+    ),
+    (
+        'connected_clients',
+        'connected_slaves',
+        'client_longest_output_list',
+        'client_biggest_input_buf',
+        'blocked_clients ',
+        'total_connections_received',
+        'total_commands_processed'
+    ),
+    (
+        'expired_keys',
+        'evicted_keys',
+        'keyspace_hits',
+        'keyspace_misses'    	
+    )
+)
+
+
+factory_settings["redis_default_values"] = {
+    "lru_clock" : (0, 0),
+    "used_cpu_sys" : (50, 75),
+    "used_cpu_user" : (50, 75),
+    "used_cpu_sys_children" : (50, 75),
+    "used_cpu_user_children" : (50, 75),
+    "used_memory" : (0, 0),
+    "used_memory_rss" : (0, 0),
+    "used_memory_peak" : (0, 0),
+    "mem_fragmentation_ratio" : (0, 0),
+    "connected_clients" : (0, 0),
+    "connected_slaves" : (0, 0),
+    "client_longest_output_list" : (0, 0),
+    "client_biggest_input_buf" : (0, 0),
+    "blocked_clients" : (0, 0),
+    "total_connections_received" : (0, 0),
+    "total_commands_processed" : (0, 0),
+    "expired_keys" : (0, 0),
+    "evicted_keys" : (0, 0),
+    "keyspace_hits" : (0, 0),
+    "keyspace_misses" : (0, 0)
+}
+
+
+
+def redis_parse(info):
+    data = {}
+    for line in info:
+        data[line[0]] = line[1]
+    return data
+
+
+def evaluate_scalar_value(item, value, valuewarn, valuecrit, message):
+    if valuewarn != 0 or valuecrit != 0:
+        perfdata = [(item, value, valuewarn, valuecrit)]
+        if value > valuecrit:
+            return 2, message % value, perfdata
+        elif value > valuewarn:
+            return 1, message % value, perfdata
+        else:
+            return 0, message % value, perfdata
+    else:
+        perfdata = [(item, value)]
+        return 0, message % value, perfdata
+
+
+def evaluate_percent_value(item, value, valuewarn, valuecrit, message):
+    if valuewarn != 0 or valuecrit != 0:
+        perfdata = [(item, value, valuewarn, valuecrit, 0, 100)]
+        if value > valuecrit:
+            return 2, message % value, perfdata
+        elif value > valuewarn:
+            return 1, message % value, perfdata
+        else:
+            return 0, message % value, perfdata
+    else:
+        perfdata = [(item, value)]
+        return 0, message % value, perfdata
+
+
+# +-------------------------------------------------------------------+
+# |                          _        __                              |
+# |                         (_)_ __  / _| ___                         |
+# |                         | | '_ \| |_ / _ \                        |
+# |                        _| | | | |  _| (_) |                       |
+# |                       (_)_|_| |_|_|  \___/                        |
+# |                                                                   |
+# +-------------------------------------------------------------------+
+# | Check current redis server info.                                  |
+# +-------------------------------------------------------------------+
+
+
+def inventory_redis_info(info):
+    data = redis_parse(info)
+    for item in data.keys():
+        if item in (agent_fields[0]):
+            yield item, {}
+
+
+def check_redis_info(item, params, info):
+    data = redis_parse(info)
+    value = data[item]
+    return 0, value
+
+
+check_info["redis.info"] = {
+    "check_function": check_redis_info,
+    "inventory_function": inventory_redis_info,
+    "service_description": "Redis info",
+    "has_perfdata": False,
+    "group": "Applications",
+    "default_levels_variable": "redis_default_values",
+}
+
+
+# +-------------------------------------------------------------------+
+# |                        _        _                                 |
+# |                    ___| |_ __ _| |_ _   _ ___                     |
+# |                   / __| __/ _` | __| | | / __|                    |
+# |                  _\__ \ || (_| | |_| |_| \__ \                    |
+# |                 (_)___/\__\__,_|\__|\__,_|___/                    |
+# |                                                                   |
+# +-------------------------------------------------------------------+
+# | Check current redis server status.                                |
+# +-------------------------------------------------------------------+
+
+
+def inventory_redis_status(info):
+    data = redis_parse(info)
+    for item in data.keys():
+        if item in (agent_fields[1]):
+            yield item, {}
+
+
+def check_redis_status(item, params, info):
+    data = redis_parse(info)
+    value = data[item]
+    return 0, value
+
+
+check_info["redis.status"] = {
+    "check_function": check_redis_status,
+    "inventory_function": inventory_redis_status,
+    "service_description": "Redis status",
+    "has_perfdata": False,
+    "group": "Applications",
+    "default_levels_variable": "redis_default_values",    
+}
+
+
+# +-------------------------------------------------------------------+
+# |                _ __  _ __ ___   ___ ___  ___ ___                  |
+# |               | '_ \| '__/ _ \ / __/ _ \/ __/ __|                 |
+# |              _| |_) | | | (_) | (_|  __/\__ \__ \                 |
+# |             (_) .__/|_|  \___/ \___\___||___/___/                 |
+# |               |_|                                                 |
+# |                                                                   |
+# +-------------------------------------------------------------------+
+# | Check current redis server process.                               |
+# +-------------------------------------------------------------------+
+
+
+def inventory_redis_process(info):
+    data = redis_parse(info)
+    for item in data.keys():
+        if item in (agent_fields[2]):
+            yield item, {}
+
+
+def check_redis_process(item, params, info):
+    data = redis_parse(info)
+    value = data[item]
+    return 0, value
+
+
+check_info["redis.process"] = {
+    "check_function": check_redis_process,
+    "inventory_function": inventory_redis_process,
+    "service_description": "Redis process",
+    "has_perfdata": False,
+    "group": "Applications",
+    "default_levels_variable": "redis_default_values",    
+}
+
+
+# +-------------------------------------------------------------------+
+# |                          ___ _ __  _   _                          |
+# |                         / __| '_ \| | | |                         |
+# |                        | (__| |_) | |_| |                         |
+# |                       (_)___| .__/ \__,_|                         |
+# |                             |_|                                   |
+# |                                                                   |
+# +-------------------------------------------------------------------+
+# | Check current redis server cpu usage.                             |
+# +-------------------------------------------------------------------+
+
+
+def inventory_redis_cpu(info):
+    data = redis_parse(info)
+    for item in data.keys():
+        if item in (agent_fields[3]):
+            yield item, {}
+
+
+def check_redis_cpu(item, params, info):
+    if type(params) != dict:
+        params = { item : params }
+    cpuwarn, cpucrit = params[item]
+
+    data = redis_parse(info)    
+    if item == agent_fields[3][0]:
+        cpu = int(data[item])
+        message = "LRU Clock: %d"
+        return evaluate_scalar_value(item, cpu, cpuwarn, cpucrit, message)
+    elif item == agent_fields[3][1]:
+        cpu = float(data[item])
+        message = "Used CPU system %s"
+        return evaluate_percent_value(item, cpu, cpuwarn, cpucrit, message)
+    elif item == agent_fields[3][2]:
+        cpu = float(data[item])
+        message = "Used CPU user %s"
+        return evaluate_percent_value(item, cpu, cpuwarn, cpucrit, message)
+    elif item == agent_fields[3][3]:
+        cpu = float(data[item])
+        message = "Children Used CPU system %s"
+        return evaluate_percent_value(item, cpu, cpuwarn, cpucrit, message)
+    elif item == agent_fields[3][4]:
+        cpu = float(data[item])
+        message = "Children Used CPU user %s"
+        return evaluate_percent_value(item, cpu, cpuwarn, cpucrit, message)        
+    else:
+        return 3, "UNKNOWN"                
+
+
+check_info["redis.cpu"] = {
+    "check_function": check_redis_cpu,
+    "inventory_function": inventory_redis_cpu,
+    "service_description": "Redis cpu",
+    "has_perfdata": True,
+    "group": "Applications",
+    "default_levels_variable": "redis_default_values",
+}
+
+
+# +-------------------------------------------------------------------+
+# |             _ __ ___   ___ _ __ ___   ___  _ __ _   _             |
+# |            | '_ ` _ \ / _ \ '_ ` _ \ / _ \| '__| | | |            |
+# |           _| | | | | |  __/ | | | | | (_) | |  | |_| |            |
+# |          (_)_| |_| |_|\___|_| |_| |_|\___/|_|   \__, |            |
+# |                                                 |___/             |
+# |                                                                   |
+# +-------------------------------------------------------------------+
+# | Check current redis server memory usage.                          |
+# +-------------------------------------------------------------------+
+
+
+def inventory_redis_memory(info):
+    data = redis_parse(info)
+    for item in data.keys():
+        if item in (agent_fields[4]):
+            yield item, {}
+
+
+def check_redis_memory(item, params, info):
+    if type(params) != dict:
+        params = { item : params }
+    memwarn, memcrit = params[item]
+
+    data = redis_parse(info)
+    if item == agent_fields[4][0]:
+        mem = int(data[item])
+        message = "used memory: %d"
+        return evaluate_scalar_value(item, mem, memwarn, memcrit, message)
+    elif item == agent_fields[4][1]:
+        mem = int(data[item])
+        message = "used memory rss: %d"
+        return evaluate_scalar_value(item, mem, memwarn, memcrit, message)
+    elif item == agent_fields[4][2]:
+        mem = int(data[item])
+        message = "used memory peak: %d"
+        return evaluate_scalar_value(item, mem, memwarn, memcrit, message)
+    elif item == agent_fields[4][3]:
+        mem = float(data[item])
+        message = "memory fragmentation ratio: %s"
+        return evaluate_percent_value(item, mem, memwarn, memcrit, message)        
+    else:
+        return 3, "UNKNOWN"
+
+check_info["redis.memory"] = {
+    "check_function": check_redis_memory,
+    "inventory_function": inventory_redis_memory,
+    "service_description": "Redis memory",
+    "has_perfdata": True,
+    "group": "Applications",
+    "default_levels_variable": "redis_default_values",    
+}
+
+
+# +-------------------------------------------------------------------+
+# |                                      _   _                        |
+# |       ___ ___  _ __  _ __   ___  ___| |_(_) ___  _ __  ___        |
+# |      / __/ _ \| '_ \| '_ \ / _ \/ __| __| |/ _ \| '_ \/ __|       |
+# |     | (_| (_) | | | | | | |  __/ (__| |_| | (_) | | | \__ \       |
+# |    (_)___\___/|_| |_|_| |_|\___|\___|\__|_|\___/|_| |_|___/       |
+# |                                                                   |
+# |                                                                   |
+# +-------------------------------------------------------------------+
+# | Check current redis connections info.                             |
+# +-------------------------------------------------------------------+
+
+
+def inventory_redis_connections(info):
+    data = redis_parse(info)
+    for item in data.keys():
+        if item in (agent_fields[5]):
+            yield item, {}
+
+
+def check_redis_connections(item, params, info):
+    if type(params) != dict:
+        params = { item : params }
+    connswarn, connscrit = params[item]
+
+
+    data = redis_parse(info)
+    if item == agent_fields[5][0]:
+        conns = int(data[item])
+        message = "connected clients: %d"
+        return evaluate_scalar_value(item, conns, connswarn, connscrit, message)
+    elif item == agent_fields[5][1]:
+        conns = int(data[item])
+        message = "connected slaves: %d"
+        return evaluate_scalar_value(item, conns, connswarn, connscrit, message)
+    elif item == agent_fields[5][2]:
+        conns = int(data[item])
+        message = "client longest output list: %d"
+        return evaluate_scalar_value(item, conns, connswarn, connscrit, message)
+    elif item == agent_fields[5][3]:
+        conns = int(data[item])
+        message = "client biggest input buffer: %d"
+        return evaluate_scalar_value(item, conns, connswarn, connscrit, message)
+    elif item == agent_fields[5][4]:
+        conns = int(data[item])
+        message = "blocked clients: %d"
+        return evaluate_scalar_value(item, conns, connswarn, connscrit, message)
+    elif item == agent_fields[5][5]:
+        conns = int(data[item])
+        message = "total connections received: %d"
+        return evaluate_scalar_value(item, conns, connswarn, connscrit, message)
+    elif item == agent_fields[5][6]:
+        conns = int(data[item])
+        message = "total commands processed: %d"
+        return evaluate_scalar_value(item, conns, connswarn, connscrit, message)
+    else:
+        return 3, "UNKNOWN"
+
+
+check_info["redis.connections"] = {
+    "check_function": check_redis_connections,
+    "inventory_function": inventory_redis_connections,
+    "service_description": "Redis connections",
+    "has_perfdata": True,
+    "group": "Applications",
+    "default_levels_variable": "redis_default_values",    
+}
+
+
+# +-------------------------------------------------------------------+
+# |                        _                                          |
+# |                       | | _____ _   _ ___                         |
+# |                       | |/ / _ \ | | / __|                        |
+# |                      _|   <  __/ |_| \__ \                        |
+# |                     (_)_|\_\___|\__, |___/                        |
+# |                                  |___/                            |
+# |                                                                   |
+# +-------------------------------------------------------------------+
+# | Check current redis keys info.                                    |
+# +-------------------------------------------------------------------+
+
+
+def inventory_redis_keys(info):
+    data = redis_parse(info)
+    for item in data.keys():
+        if item in (agent_fields[6]):
+            yield item, {}
+
+
+def check_redis_keys(item, params, info):
+    if type(params) != dict:
+        params = { item : params }
+    keyswarn, keyscrit = params[item]
+
+    data = redis_parse(info)
+    if item == agent_fields[6][0]:
+        keys = int(data[item])
+        message = "expired keys: %d"
+        return evaluate_scalar_value(item, keys, keyswarn, keyscrit, message)
+    elif item == agent_fields[6][1]:
+        keys = int(data[item])
+        message = "evicted keys: %d"
+        return evaluate_scalar_value(item, keys, keyswarn, keyscrit, message)
+    elif item == agent_fields[6][2]:
+        keys = int(data[item])
+        message = "keyspace hits: %d"
+        return evaluate_scalar_value(item, keys, keyswarn, keyscrit, message)
+    elif item == agent_fields[6][3]:
+        keys = int(data[item])
+        message = "keyspace misses: %d"
+        return evaluate_scalar_value(item, keys, keyswarn, keyscrit, message)                                
+    else:
+        return 3, "UNKNOWN"        
+
+
+check_info["redis.keys"] = {
+    "check_function": check_redis_keys,
+    "inventory_function": inventory_redis_keys,
+    "service_description": "Redis keys",
+    "has_perfdata": True,
+    "group": "Applications",
+    "default_levels_variable": "redis_default_values",    
+}

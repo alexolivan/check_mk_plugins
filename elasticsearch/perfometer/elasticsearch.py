@@ -10,7 +10,7 @@
 # | Copyright Alejandro Olivan 2016                 alex@alexolivan.com |
 # +---------------------------------------------------------------------+
 # | A Check_mk plugin to monitor elasticsearch 1.5 on Debian systems    |
-# | This file contains plugin perfometer definition  .                  |
+# | This file contains plugin perfometer definition.                    |
 # +---------------------------------------------------------------------+
 #
 # This program is free software; you can redistribute it and/or
