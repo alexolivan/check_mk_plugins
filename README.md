@@ -11,3 +11,4 @@ The main flaw is that for that reason, the plugins are meant to run on linux, an
 List of plugins:
 elasticsearch (tested with elasticsearch 1.4)
 logstash (tested with elasticsearch 1.5)
+Redis-Server
