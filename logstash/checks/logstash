@@ -47,14 +47,14 @@ logstash_status_fields = (
 )
 
 
-logstash_default_values = [
-    (0, 0),
-    (0, 0),
-    (0, 0),
-    (0, 0),
-    (50, 75),
-    (50, 75),
-]
+factory_settings["logstash_default_values"] = {
+    "redis_connections" : (0, 0),
+    "virtual_memory" : (0, 0),
+    "resident_memory" : (0, 0),
+    "shared_memory" : (0, 0),
+    "memory_usage" : (50, 75),
+    "cpu_usage" : (50, 75),
+}
 
 
 def parse_mem_data(value):
@@ -106,8 +106,7 @@ def evaluate_scalar_value(item, value, valuewarn, valuecrit, message):
         return 0, message % value, perfdata
 
 
-def evaluate_percent_value(item, strvalue, valuewarn, valuecrit, message):
-    value = float(strvalue)
+def evaluate_percent_value(item, value, valuewarn, valuecrit, message):
     if valuewarn != 0 or valuecrit != 0:
         perfdata = [(item, value, valuewarn, valuecrit, 0, 100)]
         if value > valuecrit:
@@ -138,7 +137,7 @@ def inventory_logstash_processes(info):
         logstash_status_fields[1],
         logstash_status_fields[8]        
     ):
-        yield item, None
+        yield item, {}
 
 
 def check_logstash_processes(item, params, info):
@@ -172,6 +171,8 @@ check_info["logstash.processes"] = {
     'check_function': check_logstash_processes,
     'inventory_function': inventory_logstash_processes,
     'service_description': 'Logtash processes',
+    "group": "logstash-processes",
+    "default_levels_variable": "logstash_default_values",    
 }
 
 
@@ -188,15 +189,18 @@ check_info["logstash.processes"] = {
 
 
 def inventory_logstash_redis(info):
-    yield logstash_status_fields[2], "logstash_default_values"
+    yield logstash_status_fields[2], {}
 
 
 def check_logstash_redis(item, params, info):
+    if type(params) != dict:
+        params = { item : params }
+    conswarn, conscrit = params[item]
+
     message = "established redis connections: %s"
     if item == logstash_status_fields[2]:
         for line in info:
             cons = line[1]
-            conswarn, conscrit = params[0]
             return evaluate_scalar_value(item, cons, conswarn, conscrit, message)
     else:
         return 3, "UNKNOWN"
@@ -207,6 +211,8 @@ check_info["logstash.redis"] = {
     'inventory_function': inventory_logstash_redis,
     'service_description': 'Logtash redis connections',
     'has_perfdata': True,
+    "group": "logstash-redis",
+    "default_levels_variable": "logstash_default_values",    
 }
 
 
@@ -229,32 +235,32 @@ def inventory_logstash_memory(info):
         logstash_status_fields[5],
         logstash_status_fields[7]
     ):
-        yield item, "logstash_default_values"
+        yield item, {}
 
 
 def check_logstash_memory(item, params, info):
+    if type(params) != dict:
+        params = { item : params }
+    memwarn, memcrit = params[item]
+
     if item == logstash_status_fields[3]:
         for line in info:
             mem = parse_mem_data(line[2])
-            memwarn, memcrit = params[1]
             message = "virtual memory: %d"
             return evaluate_scalar_value(item, mem, memwarn, memcrit, message)
     elif item == logstash_status_fields[4]:
         for line in info:
             mem = parse_mem_data(line[3])
-            memwarn, memcrit = params[2]
             message = "Resident memory: %d"
             return evaluate_scalar_value(item, mem, memwarn, memcrit, message)
     elif item == logstash_status_fields[5]:
         for line in info:
             mem = parse_mem_data(line[4])
-            memwarn, memcrit = params[3]
             message = "Shared memory: %d"
             return evaluate_scalar_value(item, mem, memwarn, memcrit, message)
     elif item == logstash_status_fields[7]:
         for line in info:
-            mem = line[6]
-            memwarn, memcrit = params[4]
+            mem = float(line[6])
             message = "System memory usage: %s"
             return evaluate_percent_value(item, mem, memwarn, memcrit, message)
     else:
@@ -266,6 +272,8 @@ check_info["logstash.memory"] = {
     'inventory_function': inventory_logstash_memory,
     'service_description': 'Logtash memory stats',
     'has_perfdata': True,
+    "group": "logstash-memory",
+    "default_levels_variable": "logstash_default_values",    
 }
 
 
@@ -282,14 +290,17 @@ check_info["logstash.memory"] = {
 
 
 def inventory_logstash_cpu(info):
-    yield logstash_status_fields[6], "logstash_default_values"
+    yield logstash_status_fields[6], {}
 
 
 def check_logstash_cpu(item, params, info):
+    if type(params) != dict:
+        params = { item : params }
+    cpuwarn, cpucrit = params[item]
+
     if item == logstash_status_fields[6]:
         for line in info:
-            cpu = line[5]
-            cpuwarn, cpucrit = params[5]
+            cpu = float(line[5])
             message = "System CPU usage: %s"
             return evaluate_percent_value(item, cpu, cpuwarn, cpucrit, message)
     else:
@@ -301,4 +312,6 @@ check_info["logstash.cpu"] = {
     'inventory_function': inventory_logstash_cpu,
     'service_description': 'Logtash cpu stats',
     'has_perfdata': True,
+    "group": "logstash-cpu",
+    "default_levels_variable": "logstash_default_values",    
 }

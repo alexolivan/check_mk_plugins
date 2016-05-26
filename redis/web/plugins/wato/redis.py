@@ -33,7 +33,7 @@ subgroup_applications = _("Applications, Processes & Services")
 
 register_check_parameters(
     subgroup_applications,
-    "redis-server",
+    "redis-cpu",
     _("redis-server cpu and LRU clock"),
     Dictionary(
         elements = [
@@ -42,8 +42,16 @@ register_check_parameters(
                     title = _("LRU Clock"),
                     help = _("Clock incrementing every minute, for LRU management"),
                     elements = [
-                        Integer(title = _("Warning if below"), unit = _("minutes")),
-                        Integer(title = _("Critical if below"), unit = _("minutes")),
+                        Integer(
+                            title = _("Warning if below"),
+                            unit = _("minutes"),
+                            default_value = 0                            
+                        ),
+                        Integer(
+                            title = _("Critical if below"),
+                            unit = _("minutes"),
+                            default_value = 0                            
+                        ),
                     ]
                 )
             ),
@@ -52,8 +60,16 @@ register_check_parameters(
                     title = _("CPU sys"),
                     help = _("System CPU consumed by the Redis server"),
                     elements = [
-                        Percentage(title = _("Warning if below"), unit = _("percent")),
-                        Percentage(title = _("Critical if below"), unit = _("percent")),
+                        Percentage(
+                            title = _("Warning if below"),
+                            unit = _("percent"),
+                            default_value = 50                            
+                        ),
+                        Percentage(
+                            title = _("Critical if below"),
+                            unit = _("percent"),
+                            default_value = 75                            
+                        ),
                     ]
                 )
             ),
@@ -62,8 +78,16 @@ register_check_parameters(
                     title = _("CPU user"),
                     help = _("User CPU consumed by the Redis server"),
                     elements = [
-                        Percentage(title = _("Warning if below"), unit = _("percent")),
-                        Percentage(title = _("Critical if below"), unit = _("percent")),
+                        Percentage(
+                            title = _("Warning if below"),
+                            unit = _("percent"),
+                            default_value = 50                            
+                        ),
+                        Percentage(
+                            title = _("Critical if below"),
+                            unit = _("percent"),
+                            default_value = 75                            
+                        ),
                     ]
                 )
             ),
@@ -72,8 +96,16 @@ register_check_parameters(
                     title = _("CPU children sys"),
                     help = _("System CPU consumed by the background processes"),
                     elements = [
-                        Percentage(title = _("Warning if below"), unit = _("percent")),
-                        Percentage(title = _("Critical if below"), unit = _("percent")),
+                        Percentage(
+                            title = _("Warning if below"),
+                            unit = _("percent"),
+                            default_value = 50                            
+                        ),
+                        Percentage(
+                            title = _("Critical if below"),
+                            unit = _("percent"),
+                            default_value = 75                            
+                        ),
                     ]
                 )
             ),
@@ -82,8 +114,16 @@ register_check_parameters(
                     title = _("CPU children user"),
                     help = _("User CPU consumed by the background processes"),
                     elements = [
-                        Percentage(title = _("Warning if below"), unit = _("percent")),
-                        Percentage(title = _("Critical if below"), unit = _("percent")),
+                        Percentage(
+                            title = _("Warning if below"),
+                            unit = _("percent"),
+                            default_value = 50                            
+                        ),
+                        Percentage(
+                            title = _("Critical if below"),
+                            unit = _("percent"),
+                            default_value = 75                            
+                        ),
                     ]
                 )
             ),           
@@ -95,7 +135,7 @@ register_check_parameters(
 
 register_check_parameters(
     subgroup_applications,
-    "redis-server",
+    "redis-memory",
     _("redis-server memory"),
     Dictionary(
         elements = [
@@ -104,8 +144,16 @@ register_check_parameters(
                     title = _("Total Memory"),
                     help = _("total number of bytes allocated by Redis using its allocator"),
                     elements = [
-                        Integer(title = _("Warning if below"), unit = _("Bytes")),
-                        Integer(title = _("Critical if below"), unit = _("Bytes")),
+                        Integer(
+                            title = _("Warning if below"),
+                            unit = _("Bytes"),
+                            default_value = 0                            
+                        ),
+                        Integer(
+                            title = _("Critical if below"),
+                            unit = _("Bytes"),
+                            default_value = 0                            
+                        ),
                     ]
                 )
             ),
@@ -114,8 +162,16 @@ register_check_parameters(
                     title = _("RSS Memory"),
                     help = _(" Number of bytes that Redis allocated as seen by the operating system"),
                     elements = [
-                        Integer(title = _("Warning if below"), unit = _("Bytes")),
-                        Integer(title = _("Critical if below"), unit = _("Bytes")),
+                        Integer(
+                            title = _("Warning if below"),
+                            unit = _("Bytes"),
+                            default_value = 0                            
+                        ),
+                        Integer(
+                            title = _("Critical if below"),
+                            unit = _("Bytes"),
+                            default_value = 0                            
+                        ),
                     ]
                 )
             ),
@@ -124,8 +180,16 @@ register_check_parameters(
                     title = _("Peak Memory"),
                     help = _("Peak memory consumed by Redis"),
                     elements = [
-                        Integer(title = _("Warning if below"), unit = _("Bytes")),
-                        Integer(title = _("Critical if below"), unit = _("Bytes")),
+                        Integer(
+                            title = _("Warning if below"),
+                            unit = _("Bytes"),
+                            default_value = 0                            
+                        ),
+                        Integer(
+                            title = _("Critical if below"),
+                            unit = _("Bytes"),
+                            default_value = 0                            
+                        ),
                     ]
                 )
             ),
@@ -134,8 +198,16 @@ register_check_parameters(
                     title = _("Memory fragmentation Ratio"),
                     help = _("Ratio between used_memory_rss and used_memory"),
                     elements = [
-                        Percentage(title = _("Warning if below"), unit = _("percent")),
-                        Percentage(title = _("Critical if below"), unit = _("percent")),
+                        Percentage(
+                            title = _("Warning if below"),
+                            unit = _("percent"),
+                            default_value = 50                            
+                        ),
+                        Percentage(
+                            title = _("Critical if below"),
+                            unit = _("percent"),
+                            default_value = 75                            
+                        ),
                     ]
                 )
             ),
@@ -147,7 +219,7 @@ register_check_parameters(
 
 register_check_parameters(
     subgroup_applications,
-    "redis-server",
+    "redis-connections",
     _("redis-server connections"),
     Dictionary(
         elements = [
@@ -156,8 +228,16 @@ register_check_parameters(
                     title = _("Client connections"),
                     help = _("Number of client connections"),
                     elements = [
-                        Integer(title = _("Warning if below"), unit = _("connections")),
-                        Integer(title = _("Critical if below"), unit = _("connections")),
+                        Integer(
+                            title = _("Warning if below"),
+                            unit = _("connections"),
+                            default_value = 0                            
+                        ),
+                        Integer(
+                            title = _("Critical if below"),
+                            unit = _("connections"),
+                            default_value = 0                            
+                        ),
                     ]
                 )
             ),
@@ -166,8 +246,16 @@ register_check_parameters(
                     title = _("Slaves connections"),
                     help = _("Number of slave servers connections"),
                     elements = [
-                        Integer(title = _("Warning if below"), unit = _("connections")),
-                        Integer(title = _("Critical if below"), unit = _("connections")),
+                        Integer(
+                            title = _("Warning if below"),
+                            unit = _("connections"),
+                            default_value = 0                            
+                        ),
+                        Integer(
+                            title = _("Critical if below"),
+                            unit = _("connections"),
+                            default_value = 0                            
+                        ),
                     ]
                 )
             ),
@@ -176,8 +264,14 @@ register_check_parameters(
                     title = _("Client longest output list"),
                     help = _("longest output list among current client connections"),
                     elements = [
-                        Integer(title = _("Warning if below")),
-                        Integer(title = _("Critical if below")),
+                        Integer(
+                            title = _("Warning if below"),
+                            default_value = 0                            
+                            ),
+                        Integer(
+                            title = _("Critical if below"),
+                            default_value = 0                            
+                            ),
                     ]
                 )
             ),
@@ -186,8 +280,14 @@ register_check_parameters(
                     title = _("Client biggest input buffer"),
                     help = _("biggest input buffer among current client connections"),
                     elements = [
-                        Integer(title = _("Warning if below")),
-                        Integer(title = _("Critical if below")),
+                        Integer(
+                            title = _("Warning if below"),
+                            default_value = 0                            
+                            ),
+                        Integer(
+                            title = _("Critical if below"),
+                            default_value = 0                            
+                            ),
                     ]
                 )
             ),
@@ -196,8 +296,16 @@ register_check_parameters(
                     title = _("Blocked clients"),
                     help = _("Number of clients pending on a blocking call"),
                     elements = [
-                        Integer(title = _("Warning if below"), unit = _("blocks")),
-                        Integer(title = _("Critical if below"), unit = _("blocks")),
+                        Integer(
+                            title = _("Warning if below"),
+                            unit = _("blocks"),
+                            default_value = 0                            
+                        ),
+                        Integer(
+                            title = _("Critical if below"),
+                            unit = _("blocks"),
+                            default_value = 0                            
+                        ),
                     ]
                 )
             ),
@@ -206,8 +314,16 @@ register_check_parameters(
                     title = _("Total Received Connections"),
                     help = _("Total number of connections accepted by the server"),
                     elements = [
-                        Integer(title = _("Warning if below"), unit = _("connections")),
-                        Integer(title = _("Critical if below"), unit = _("connections")),
+                        Integer(
+                            title = _("Warning if below"),
+                            unit = _("connections"),
+                            default_value = 0                            
+                        ),
+                        Integer(
+                            title = _("Critical if below"),
+                            unit = _("connections"),
+                            default_value = 0                            
+                        ),
                     ]
                 )
             ),
@@ -216,8 +332,16 @@ register_check_parameters(
                     title = _("Total Processed commands"),
                     help = _("Total number of commands processed by the server"),
                     elements = [
-                        Integer(title = _("Warning if below"), unit = _("commands")),
-                        Integer(title = _("Critical if below"), unit = _("commands")),
+                        Integer(
+                            title = _("Warning if below"),
+                            unit = _("commands"),
+                            default_value = 0                            
+                        ),
+                        Integer(
+                            title = _("Critical if below"),
+                            unit = _("commands"),
+                            default_value = 0                            
+                        ),
                     ]
                 )
             ),
@@ -230,7 +354,7 @@ register_check_parameters(
 
 register_check_parameters(
     subgroup_applications,
-    "redis-server",
+    "redis-keys",
     _("redis-server keys"),
     Dictionary(
         elements = [
@@ -239,8 +363,16 @@ register_check_parameters(
                     title = _("Expired Keys"),
                     help = _("Total number of key expiration events"),
                     elements = [
-                        Integer(title = _("Warning if below"), unit = _("keys")),
-                        Integer(title = _("Critical if below"), unit = _("keys")),
+                        Integer(
+                            title = _("Warning if below"),
+                            unit = _("keys"),
+                            default_value = 0                            
+                        ),
+                        Integer(
+                            title = _("Critical if below"),
+                            unit = _("keys"),
+                            default_value = 0                            
+                        ),
                     ]
                 )
             ),
@@ -249,8 +381,16 @@ register_check_parameters(
                     title = _("Evicted keys"),
                     help = _("Number of evicted keys due to maxmemory limit"),
                     elements = [
-                        Integer(title = _("Warning if below"), unit = _("keys")),
-                        Integer(title = _("Critical if below"), unit = _("keys")),
+                        Integer(
+                            title = _("Warning if below"),
+                            unit = _("keys"),
+                            default_value = 0                            
+                        ),
+                        Integer(
+                            title = _("Critical if below"),
+                            unit = _("keys"),
+                            default_value = 0                            
+                        ),
                     ]
                 )
             ),
@@ -259,8 +399,16 @@ register_check_parameters(
                     title = _("Total Keyspace hits"),
                     help = _("Number of successful lookup of keys in the main dictionary"),
                     elements = [
-                        Integer(title = _("Warning if below"), unit = _("hits")),
-                        Integer(title = _("Critical if below"), unit = _("hits")),
+                        Integer(
+                            title = _("Warning if below"),
+                            unit = _("hits"),
+                            default_value = 0                            
+                        ),
+                        Integer(
+                            title = _("Critical if below"),
+                            unit = _("hits"),
+                            default_value = 0                            
+                        ),
                     ]
                 )
             ),
@@ -269,8 +417,16 @@ register_check_parameters(
                     title = _("Total Keyspace misses"),
                     help = _("Number of failed lookup of keys in the main dictionary"),
                     elements = [
-                        Integer(title = _("Warning if below"), unit = _("misses")),
-                        Integer(title = _("Critical if below"), unit = _("misses")),
+                        Integer(
+                            title = _("Warning if below"),
+                            unit = _("misses"),
+                            default_value = 0                            
+                        ),
+                        Integer(
+                            title = _("Critical if below"),
+                            unit = _("misses"),
+                            default_value = 0                            
+                        ),
                     ]
                 )
             ),

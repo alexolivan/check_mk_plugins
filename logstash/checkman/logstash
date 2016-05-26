@@ -97,6 +97,8 @@ inventory:
 
 [configuration]
  no configuration needed.
+ Can be configured via WATO.
+
 
 
 
@@ -128,6 +130,8 @@ inventory:
 
 [configuration]
  no configuration needed.
+ Can be configured via WATO.
+
 
 
 
@@ -158,3 +162,4 @@ inventory:
 
 [configuration]
  no configuration needed.
+ Can be configured via WATO.
