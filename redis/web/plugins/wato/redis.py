@@ -28,6 +28,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, 
 # MA  02110-1301, USA.
 
+group = "checkparams"
+subgroup_applications = _("Applications, Processes & Services")
+
+
 register_check_parameters(
     subgroup_applications,
     "redis",
