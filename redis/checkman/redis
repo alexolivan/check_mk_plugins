@@ -1,0 +1,337 @@
+title: redis
+agents: linux (just tested on Debian Linux)
+catalog: "app","Applications"
+license: GPL
+distribution:
+
+description:
+ This plugin gets information of a locally running redis-server 
+ instance.
+ It is agent fed, and it uses standard INFO command issued to
+ local server through redis-cli command.
+ It uses a previous netstat scan for listeneing interfaces on 
+ a predetermined default port 6379.
+ If redis-server listens in different port, the agent script 
+ port variable should have to be modified accordingly.
+
+ Items are grouped in subplugins and items are generated in 
+ a per-line basis, using INFO command output lines as source,
+ one item per line.
+
+Example output from agent:
+ <<<redis>>>
+ redis_version 2.4.14
+ redis_git_sha1 00000000
+ redis_git_dirty 0
+ arch_bits 64
+ multiplexing_api epoll
+ gcc_version 4.6.2
+ process_id 15587
+ uptime_in_seconds 2991
+ uptime_in_days 0
+ lru_clock 1698191
+ used_cpu_sys 0.31
+ used_cpu_user 0.52
+ used_cpu_sys_children 0.00
+ used_cpu_user_children 0.00
+ connected_clients 13
+ connected_slaves 0
+ client_longest_output_list 0
+ client_biggest_input_buf 0
+ blocked_clients 2
+ used_memory 850208
+ used_memory_human 830.28K
+ used_memory_rss 1847296
+ used_memory_peak 859592
+ used_memory_peak_human 839.45K
+ mem_fragmentation_ratio 2.17
+ mem_allocator jemalloc-2.2.5
+ loading 0
+ aof_enabled 0
+ changes_since_last_save 0
+ bgsave_in_progress 0
+ last_save_time 1464016603
+ bgrewriteaof_in_progress 0
+ total_connections_received 134
+ total_commands_processed 12201
+ expired_keys 0
+ evicted_keys 0
+ keyspace_hits 0
+ keyspace_misses 0
+ pubsub_channels 0
+ pubsub_patterns 0
+ latest_fork_usec 116
+ vm_enabled 0
+ role master
+
+
+
+
+title: redis.info
+description:
+ This check checks redis instance details info
+
+items:
+ 'redis_version' server version
+ 'redis_git_sha1' git details
+ 'redis_git_dirty' git details
+ 'arch_bits' binary architcture bits
+ 'multiplexing_api' API details
+ 'gcc_version' used GCC version
+ 'mem_allocator' used mem allocator
+
+examples:
+ no configuration needed.
+
+perfdata:
+ No perfdata is generated
+
+inventory:
+ inventory function specifically catches lines number 
+ 0 to 5 and 25 from agent output.
+ it yelds items with empty dictionary value
+
+[parameters]
+ Parameters are not needed.
+
+[configuration]
+ no configuration needed.
+
+
+
+
+title: redis.status
+description:
+ This check checks redis server instance status details.
+
+items:
+ 'loading'
+ 'aof_enabled'
+ 'changes_since_last_save'
+ 'bgsave_in_progress'
+ 'last_save_time'
+ 'bgrewriteaof_in_progress'
+ 'pubsub_channels'
+ 'pubsub_patterns'
+ 'latest_fork_usec'
+ 'vm_enabled'
+ 'role'
+
+examples:
+ no configuration needed.
+
+perfdata:
+ No perfdata is generated
+
+inventory:
+ inventory function specifically catches lines number 
+ 26 to 31 and 38 to 42 from agent output.
+ it yelds items with empty dictionary value
+
+[parameters]
+ Parameters are not needed.
+
+[configuration]
+ no configuration needed.
+
+
+
+
+title: redis.process
+description:
+ This check checks redis server process details
+
+items:
+ 'process_id' Server process ID
+ 'uptime_in_seconds' Server uptime in seconds
+ 'uptime_in_days' Server uptime in days
+
+examples:
+ no configuration needed.
+
+perfdata:
+ No perfdata is generated
+
+inventory:
+ inventory function specifically catches lines number 
+ 6, 7 and 8 from agent output.
+ it yelds items with empty dictionary value
+
+[parameters]
+ Parameters are not needed.
+
+[configuration]
+ no configuration needed.
+
+
+
+
+title: redis.cpu
+description:
+ This check checks redis server CPU usage info and LRU clock
+
+items:
+ 'lru_clock' LRU clock increment counter
+ 'used_cpu_sys' Sys CPU used by server
+ 'used_cpu_user' User CPU used by server
+ 'used_cpu_sys_children' Sys CPU used by child processes
+ 'used_cpu_user_children' User CPU used by child processes
+
+examples:
+ factory_settings["redis_default_values"]["lru_clock"] = (128000, 512000)
+ factory_settings["redis_default_values"]["used_cpu_sys"] = (33, 66)
+ factory_settings["redis_default_values"]["used_cpu_user"] = (33, 66)
+ factory_settings["redis_default_values"]["used_cpu_sys_children"] = (33, 66)
+ factory_settings["redis_default_values"]["used_cpu_user_children"] = (33, 66)
+
+perfdata:
+ All items generate value, warn, crit perfdata
+ default values are 59, 75 for every item except 'lru_clock'
+ 'lru_clock' comes with 0 and 0 values for warn and crit (disabled) 
+
+inventory:
+ inventory function specifically catches lines number 
+ 6, 7 and 8 from agent output.
+ it yelds items with empty dictionary value
+
+[parameters]
+ Parameters are common in al module via the dictionary
+ factory_settings["redis_default_values"]
+
+ 'lru_clock' -> factory_settings["redis_default_values"]["lru_clock"]
+ 'used_cpu_sys' -> factory_settings["redis_default_values"]["used_cpu_sys"]
+ 'used_cpu_user' -> factory_settings["redis_default_values"]["used_cpu_user"]
+ 'used_cpu_sys_children' -> factory_settings["redis_default_values"]["used_cpu_sys_children"]
+ 'used_cpu_user_children' -> factory_settings["redis_default_values"]["used_cpu_user_children"]
+
+[configuration]
+ no configuration needed.
+
+
+
+
+title: redis.memory
+description:
+ This check checks redis server memory usage and facts
+
+items:
+ 'used_memory' Bytes allocated by redis allocator
+ 'used_memory_rss' Bytes used as seen by Operating System
+ 'used_memory_peak' Max Memory Usage
+ 'mem_fragmentation_ratio' Memory Fragmentation Ratio
+
+examples:
+ factory_settings["redis_default_values"]["used_memory"] = (128000, 512000)
+ factory_settings["redis_default_values"]["used_memory_rss"] = (128000, 512000)
+ factory_settings["redis_default_values"]["used_memory_peak"] = (128000, 512000)
+ factory_settings["redis_default_values"]["mem_fragmentation_ratio"] = (33, 66)
+
+perfdata:
+ All items generate value, warn, crit perfdata
+ default values are 0, 0 for every item (disabled warn and crit)
+
+inventory:
+ inventory function specifically catches lines number 
+ 19, 21, 22 and 24 from agent output.
+ it yelds items with empty dictionary value
+
+[parameters]
+ Parameters are common in al module via the dictionary
+ factory_settings["redis_default_values"]
+
+ 'used_memory' -> factory_settings["redis_default_values"]["used_memory"]
+ 'used_memory_rss' -> factory_settings["redis_default_values"]["used_memory_rss"]
+ 'used_memory_peak' ->  factory_settings["redis_default_values"]["used_memory_peak"]
+ 'mem_fragmentation_ratio' -> factory_settings["redis_default_values"]["mem_fragmentation_ratio"]
+
+[configuration]
+ no configuration needed.
+
+
+
+
+title: redis.connections
+description:
+ This check checks redis server connections status and facts
+
+items:
+ 'connected_clients' total client connections
+ 'connected_slaves' total slave servers connected
+ 'client_longest_output_list' longest output list
+ 'client_biggest_input_buf' biggest input buffer
+ 'blocked_clients' total blocked clients
+ 'total_connections_received' connections received counter
+ 'total_commands_processed' commands processed counter
+
+examples:
+ factory_settings["redis_default_values"]["connected_clients"] = (12, 24)
+ factory_settings["redis_default_values"]["connected_slaves"] = (4, 2)
+ factory_settings["redis_default_values"]["client_longest_output_list"] = (128000, 512000)
+ factory_settings["redis_default_values"]["client_biggest_input_buf"] = (128000, 512000)
+ factory_settings["redis_default_values"]["blocked_clients"] = (20, 30)
+ factory_settings["redis_default_values"]["total_connections_received"] = (128000, 512000)
+ factory_settings["redis_default_values"]["total_commands_processed"] = (128000, 512000) 
+
+perfdata:
+ All items generate value, warn, crit perfdata
+ default values are 0, 0 for every item (disabled warn and crit) 
+
+inventory:
+ inventory function specifically catches lines number 
+ 14 to 18 and 32 and 33 from agent output.
+ it yelds items with empty dictionary value
+
+[parameters]
+ Parameters are common in al module via the dictionary
+ factory_settings["redis_default_values"]
+
+ 'connected_clients' -> factory_settings["redis_default_values"]["connected_clients"]
+ 'connected_slaves' -> factory_settings["redis_default_values"]["connected_slaves"]
+ 'client_longest_output_list' -> factory_settings["redis_default_values"]["client_longest_output_list"]
+ 'client_biggest_input_buf' -> factory_settings["redis_default_values"]["client_biggest_input_buf"]
+ 'blocked_clients' -> factory_settings["redis_default_values"]["blocked_clients"]
+ 'total_connections_received' -> factory_settings["redis_default_values"]["total_connections_received"]
+ 'total_commands_processed' -> factory_settings["redis_default_values"]["total_commands_processed"]
+
+[configuration]
+ no configuration needed.
+
+
+
+
+title: redis.keys
+description:
+ This check checks redis server keys status
+
+items:
+ 'expired_keys' Expiration event counter
+ 'evicted_keys' Deleted keys due to out-of-memory event counter
+ 'keyspace_hits' Hits counter
+ 'keyspace_misses' Misses counter
+
+examples:
+ factory_settings["redis_default_values"]["expired_keys"] = (12, 24)
+ factory_settings["redis_default_values"]["evicted_keys"] = (100, 150)
+ factory_settings["redis_default_values"]["keyspace_hits"] = (300, 400)
+ factory_settings["redis_default_values"]["keyspace_misses"] = (200, 300) 
+
+perfdata:
+ All items generate value, warn, crit perfdata
+ default values are 0, 0 for every item (disabled warn and crit) 
+
+inventory:
+ inventory function specifically catches lines number 
+ 44 to 47 from agent output.
+ it yelds items with empty dictionary value
+
+[parameters]
+ Parameters are common in al module via the dictionary
+ factory_settings["redis_default_values"]
+
+ 'expired_keys' -> factory_settings["redis_default_values"]["expired_keys"]
+ 'evicted_keys' -> factory_settings["redis_default_values"]["evicted_keys"]
+ 'keyspace_hits' -> factory_settings["redis_default_values"]["keyspace_hits"]
+ 'keyspace_misses' -> factory_settings["redis_default_values"]["keyspace_misses"]
+
+[configuration]
+ no configuration needed.

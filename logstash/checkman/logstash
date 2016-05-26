@@ -24,7 +24,7 @@ description:
  netstat -tntap | grep -E "${REDISPORT}.*ESTABLISHED.*${line}.*" | wc -l
  top -b -n 1 | grep ${line} | awk '{print $5, $6, $7, $9, $10, $11}'
 
- Example output from agent:
+Example output from agent:
  <<<logstash>>>
  29415 12 2009m 644m 16m 19.8 15.7 1:05.21
 

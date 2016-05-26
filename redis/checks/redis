@@ -120,7 +120,7 @@ agent_fields = (
         'connected_slaves',
         'client_longest_output_list',
         'client_biggest_input_buf',
-        'blocked_clients ',
+        'blocked_clients',
         'total_connections_received',
         'total_commands_processed'
     ),
