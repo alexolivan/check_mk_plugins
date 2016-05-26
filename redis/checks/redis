@@ -223,7 +223,7 @@ check_info["redis.info"] = {
     "inventory_function": inventory_redis_info,
     "service_description": "Redis info",
     "has_perfdata": False,
-    "group": "Applications",
+    "group": "redis-info",
     "default_levels_variable": "redis_default_values",
 }
 
@@ -258,7 +258,7 @@ check_info["redis.status"] = {
     "inventory_function": inventory_redis_status,
     "service_description": "Redis status",
     "has_perfdata": False,
-    "group": "Applications",
+    "group": "redis-status",
     "default_levels_variable": "redis_default_values",    
 }
 
@@ -293,7 +293,7 @@ check_info["redis.process"] = {
     "inventory_function": inventory_redis_process,
     "service_description": "Redis process",
     "has_perfdata": False,
-    "group": "Applications",
+    "group": "redis-process",
     "default_levels_variable": "redis_default_values",    
 }
 
@@ -352,7 +352,7 @@ check_info["redis.cpu"] = {
     "inventory_function": inventory_redis_cpu,
     "service_description": "Redis cpu",
     "has_perfdata": True,
-    "group": "Applications",
+    "group": "redis-cpu",
     "default_levels_variable": "redis_default_values",
 }
 
@@ -406,7 +406,7 @@ check_info["redis.memory"] = {
     "inventory_function": inventory_redis_memory,
     "service_description": "Redis memory",
     "has_perfdata": True,
-    "group": "Applications",
+    "group": "redis-memory",
     "default_levels_variable": "redis_default_values",    
 }
 
@@ -475,7 +475,7 @@ check_info["redis.connections"] = {
     "inventory_function": inventory_redis_connections,
     "service_description": "Redis connections",
     "has_perfdata": True,
-    "group": "Applications",
+    "group": "redis-connections",
     "default_levels_variable": "redis_default_values",    
 }
 
@@ -531,6 +531,6 @@ check_info["redis.keys"] = {
     "inventory_function": inventory_redis_keys,
     "service_description": "Redis keys",
     "has_perfdata": True,
-    "group": "Applications",
+    "group": "redis-keys",
     "default_levels_variable": "redis_default_values",    
 }

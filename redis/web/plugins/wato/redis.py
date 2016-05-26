@@ -31,11 +31,10 @@
 group = "checkparams"
 subgroup_applications = _("Applications, Processes & Services")
 
-
 register_check_parameters(
     subgroup_applications,
-    "redis",
-    _("redis-server info and status"),
+    "redis-server",
+    _("redis-server cpu and LRU clock"),
     Dictionary(
         elements = [
             ("lru_clock",
@@ -87,7 +86,19 @@ register_check_parameters(
                         Percentage(title = _("Critical if below"), unit = _("percent")),
                     ]
                 )
-            ),
+            ),           
+       ]
+   ),
+   None,
+   "first",
+)
+
+register_check_parameters(
+    subgroup_applications,
+    "redis-server",
+    _("redis-server memory"),
+    Dictionary(
+        elements = [
             ("used_memory",
                 Tuple(
                     title = _("Total Memory"),
@@ -128,6 +139,18 @@ register_check_parameters(
                     ]
                 )
             ),
+       ]
+   ),
+   None,
+   "first",
+)
+
+register_check_parameters(
+    subgroup_applications,
+    "redis-server",
+    _("redis-server connections"),
+    Dictionary(
+        elements = [
             ("connected_clients",
                 Tuple(
                     title = _("Client connections"),
@@ -198,6 +221,19 @@ register_check_parameters(
                     ]
                 )
             ),
+       ]
+   ),
+   None,
+   "first",
+)
+
+
+register_check_parameters(
+    subgroup_applications,
+    "redis-server",
+    _("redis-server keys"),
+    Dictionary(
+        elements = [
             ("expired_keys",
                 Tuple(
                     title = _("Expired Keys"),
@@ -237,7 +273,7 @@ register_check_parameters(
                         Integer(title = _("Critical if below"), unit = _("misses")),
                     ]
                 )
-            ),              
+            ),
        ]
    ),
    None,
