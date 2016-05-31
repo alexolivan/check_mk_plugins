@@ -74,7 +74,7 @@
 #vm_enabled 0
 #role master
 
-agent_fields = (
+redis_agent_fields = (
 	(
         'redis_version',
         'redis_git_sha1',
@@ -208,7 +208,7 @@ def evaluate_percent_value(item, value, valuewarn, valuecrit, message):
 def inventory_redis_info(info):
     data = redis_parse(info)
     for item in data.keys():
-        if item in (agent_fields[0]):
+        if item in (redis_agent_fields[0]):
             yield item, {}
 
 
@@ -243,7 +243,7 @@ check_info["redis.info"] = {
 def inventory_redis_status(info):
     data = redis_parse(info)
     for item in data.keys():
-        if item in (agent_fields[1]):
+        if item in (redis_agent_fields[1]):
             yield item, {}
 
 
@@ -278,7 +278,7 @@ check_info["redis.status"] = {
 def inventory_redis_process(info):
     data = redis_parse(info)
     for item in data.keys():
-        if item in (agent_fields[2]):
+        if item in (redis_agent_fields[2]):
             yield item, {}
 
 
@@ -313,7 +313,7 @@ check_info["redis.process"] = {
 def inventory_redis_cpu(info):
     data = redis_parse(info)
     for item in data.keys():
-        if item in (agent_fields[3]):
+        if item in (redis_agent_fields[3]):
             yield item, {}
 
 
@@ -323,23 +323,23 @@ def check_redis_cpu(item, params, info):
     cpuwarn, cpucrit = params[item]
 
     data = redis_parse(info)    
-    if item == agent_fields[3][0]:
+    if item == redis_agent_fields[3][0]:
         cpu = int(data[item])
         message = "LRU Clock: %d"
         return evaluate_scalar_value(item, cpu, cpuwarn, cpucrit, message)
-    elif item == agent_fields[3][1]:
+    elif item == redis_agent_fields[3][1]:
         cpu = float(data[item])
         message = "Used CPU system %s"
         return evaluate_percent_value(item, cpu, cpuwarn, cpucrit, message)
-    elif item == agent_fields[3][2]:
+    elif item == redis_agent_fields[3][2]:
         cpu = float(data[item])
         message = "Used CPU user %s"
         return evaluate_percent_value(item, cpu, cpuwarn, cpucrit, message)
-    elif item == agent_fields[3][3]:
+    elif item == redis_agent_fields[3][3]:
         cpu = float(data[item])
         message = "Children Used CPU system %s"
         return evaluate_percent_value(item, cpu, cpuwarn, cpucrit, message)
-    elif item == agent_fields[3][4]:
+    elif item == redis_agent_fields[3][4]:
         cpu = float(data[item])
         message = "Children Used CPU user %s"
         return evaluate_percent_value(item, cpu, cpuwarn, cpucrit, message)        
@@ -372,7 +372,7 @@ check_info["redis.cpu"] = {
 def inventory_redis_memory(info):
     data = redis_parse(info)
     for item in data.keys():
-        if item in (agent_fields[4]):
+        if item in (redis_agent_fields[4]):
             yield item, {}
 
 
@@ -382,19 +382,19 @@ def check_redis_memory(item, params, info):
     memwarn, memcrit = params[item]
 
     data = redis_parse(info)
-    if item == agent_fields[4][0]:
+    if item == redis_agent_fields[4][0]:
         mem = int(data[item])
         message = "used memory: %d"
         return evaluate_scalar_value(item, mem, memwarn, memcrit, message)
-    elif item == agent_fields[4][1]:
+    elif item == redis_agent_fields[4][1]:
         mem = int(data[item])
         message = "used memory rss: %d"
         return evaluate_scalar_value(item, mem, memwarn, memcrit, message)
-    elif item == agent_fields[4][2]:
+    elif item == redis_agent_fields[4][2]:
         mem = int(data[item])
         message = "used memory peak: %d"
         return evaluate_scalar_value(item, mem, memwarn, memcrit, message)
-    elif item == agent_fields[4][3]:
+    elif item == redis_agent_fields[4][3]:
         mem = float(data[item])
         message = "memory fragmentation ratio: %s"
         return evaluate_percent_value(item, mem, memwarn, memcrit, message)        
@@ -427,7 +427,7 @@ check_info["redis.memory"] = {
 def inventory_redis_connections(info):
     data = redis_parse(info)
     for item in data.keys():
-        if item in (agent_fields[5]):
+        if item in (redis_agent_fields[5]):
             yield item, {}
 
 
@@ -438,31 +438,31 @@ def check_redis_connections(item, params, info):
 
 
     data = redis_parse(info)
-    if item == agent_fields[5][0]:
+    if item == redis_agent_fields[5][0]:
         conns = int(data[item])
         message = "connected clients: %d"
         return evaluate_scalar_value(item, conns, connswarn, connscrit, message)
-    elif item == agent_fields[5][1]:
+    elif item == redis_agent_fields[5][1]:
         conns = int(data[item])
         message = "connected slaves: %d"
         return evaluate_scalar_value(item, conns, connswarn, connscrit, message)
-    elif item == agent_fields[5][2]:
+    elif item == redis_agent_fields[5][2]:
         conns = int(data[item])
         message = "client longest output list: %d"
         return evaluate_scalar_value(item, conns, connswarn, connscrit, message)
-    elif item == agent_fields[5][3]:
+    elif item == redis_agent_fields[5][3]:
         conns = int(data[item])
         message = "client biggest input buffer: %d"
         return evaluate_scalar_value(item, conns, connswarn, connscrit, message)
-    elif item == agent_fields[5][4]:
+    elif item == redis_agent_fields[5][4]:
         conns = int(data[item])
         message = "blocked clients: %d"
         return evaluate_scalar_value(item, conns, connswarn, connscrit, message)
-    elif item == agent_fields[5][5]:
+    elif item == redis_agent_fields[5][5]:
         conns = int(data[item])
         message = "total connections received: %d"
         return evaluate_scalar_value(item, conns, connswarn, connscrit, message)
-    elif item == agent_fields[5][6]:
+    elif item == redis_agent_fields[5][6]:
         conns = int(data[item])
         message = "total commands processed: %d"
         return evaluate_scalar_value(item, conns, connswarn, connscrit, message)
@@ -496,7 +496,7 @@ check_info["redis.connections"] = {
 def inventory_redis_keys(info):
     data = redis_parse(info)
     for item in data.keys():
-        if item in (agent_fields[6]):
+        if item in (redis_agent_fields[6]):
             yield item, {}
 
 
@@ -506,19 +506,19 @@ def check_redis_keys(item, params, info):
     keyswarn, keyscrit = params[item]
 
     data = redis_parse(info)
-    if item == agent_fields[6][0]:
+    if item == redis_agent_fields[6][0]:
         keys = int(data[item])
         message = "expired keys: %d"
         return evaluate_scalar_value(item, keys, keyswarn, keyscrit, message)
-    elif item == agent_fields[6][1]:
+    elif item == redis_agent_fields[6][1]:
         keys = int(data[item])
         message = "evicted keys: %d"
         return evaluate_scalar_value(item, keys, keyswarn, keyscrit, message)
-    elif item == agent_fields[6][2]:
+    elif item == redis_agent_fields[6][2]:
         keys = int(data[item])
         message = "keyspace hits: %d"
         return evaluate_scalar_value(item, keys, keyswarn, keyscrit, message)
-    elif item == agent_fields[6][3]:
+    elif item == redis_agent_fields[6][3]:
         keys = int(data[item])
         message = "keyspace misses: %d"
         return evaluate_scalar_value(item, keys, keyswarn, keyscrit, message)                                

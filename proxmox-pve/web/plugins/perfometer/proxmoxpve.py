@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/usr/bin/python
+# -*- encoding: utf-8; py-indent-offset: 4 -*-
 # +---------------------------------------------------------------------+
 # |     ____  ____   _____  ____  __  _____  __                         |
 # |    |  _ \|  _ \ / _ \ \/ /  \/  |/ _ \ \/ /     _ ____   _____      |
@@ -10,7 +11,7 @@
 # | Copyright Alejandro Olivan 2016                 alex@alexolivan.com |
 # +---------------------------------------------------------------------+
 # | A Check_mk agent to monitor PROXMOX PVE Hypervisor systems          |
-# | This file contains plugin agent definition.                         |
+# | This file contains plugin perfometer definition.                    |
 # +---------------------------------------------------------------------+
 #
 # This program is free software; you can redistribute it and/or
@@ -28,30 +29,28 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA  02110-1301, USA.
 
-echo "<<<proxmox-pve>>>"
 
-# Get PROXMOX PVE local environment facts
-echo "pve-version:"
-pveversion -v | sed -e 's/:/ /g' | awk '{print $1, $2}'
-
-# Get PROXMOX Cluster info and status
-echo "cluster-status:"
-pvecm status | sed 's/: */_/g' | sed -r 's/\s+/-/' | sed 's/_/ /g'
+def perfometer_proxmoxpve_pveversion(row, check_command, perf_data):
+    return '', ''
 
 
-# Count locally runing VMs and Containers
-echo "local-status:"
-STOPPEDVMS=`qm list 2>/dev/null | grep "stopped" | wc -l`
-echo "stopped-vms ${STOPPEDVMS}"
-RUNNINGVMS=`qm list 2>/dev/null | grep "running" | wc -l`
-echo "running-vms ${RUNNINGVMS}"
+def perfometer_proxmoxpve_clusterinfo(row, check_command, perf_data):
+    return '', ''
 
-STOPPEDVZS=`vzlist 2>/dev/null | grep "stopped" | wc -l`
-echo "stopped-vzs ${STOPPEDVZS}"
-RUNNINGVZS=`vzlist 2>/dev/null | grep "running" | wc -l`
-echo "running-vzs ${RUNNINGVZS}"
 
-STOPPEDLXCS=`lxc-ls -f 2>/dev/null | grep "STOPPED" | wc -l`
-echo "stopped-lxcs ${STOPPEDLXCS}"
-RUNNINGLXCS=`lxc-ls -f 2>/dev/null | grep "RUNNING" | wc -l`
-echo "running-lxcs ${RUNNINGLXCS}"
+def perfometer_proxmoxpve_clusterstatus(row, check_command, perf_data):
+    color = {0: "#6f8", 1: "#ff2", 2: "#f22", 3: "#fa2"}[row["service_state"]]
+    value = int(perf_data[0][1])
+    return "%d" % value, perfometer_logarithmic(value, 100, 5, color)
+
+
+def perfometer_proxmoxpve_localstatus(row, check_command, perf_data):
+    color = {0: "#6f8", 1: "#ff2", 2: "#f22", 3: "#fa2"}[row["service_state"]]
+    value = int(perf_data[0][1])
+    return "%d" % value, perfometer_logarithmic(value, 100, 5, color)
+
+
+perfometers["check_mk-proxmoxpve.pveversion"] = perfometer_proxmoxpve_pveversion
+perfometers["check_mk-proxmoxpve.clusterinfo"] = perfometer_proxmoxpve_clusterinfo
+perfometers["check_mk-proxmoxpve.clusterstatus"] = perfometer_proxmoxpve_clusterstatus
+perfometers["check_mk-proxmoxpve.localstatus"] = perfometer_proxmoxpve_localstatus   
