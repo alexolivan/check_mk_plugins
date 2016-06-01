@@ -1,0 +1,272 @@
+title: proxmoxpve
+agents: proxmox-pve 3.x and 4.x (just tested on 3.4)
+catalog: "app","Applications"
+license: GPL
+distribution:
+
+description:
+ This plugin tries to check PROXMOX PVE local Hypervisor 
+ status and its average cluster status.
+ The plugin gathers information from the local node, but 
+ also from the cluster facts.
+ Also, the plugin will check the total number of locally
+ running and stopped virtual machines and containers 
+ (both OpenVZ and LXC).
+ It allows to setup parameters in WATO to trigger alarms 
+ against some sensible values such as cluster nodes 
+ counts and VM/Container counts.  
+
+ Items are grouped in subplugins and items are generated in 
+ a per-line basis, using a series of command output lines as 
+ source, one item per line.
+ To ease plugin coding, agent outputs separator lines among
+ output lines with fixed strings, to separate sections.
+ Involved commands ran by agent ('pvecm', 'pveversion', 
+ 'qm', 'vzlist', 'lxc-ls') are proxmox-pve distribution 
+ included, so no dependencies to worry about.
+
+Example output from agent:
+ <<<proxmox-pve>>>
+ pve-version:					<-- PVE versions start mark
+ proxmox-ve-2.6.32 3.4-174
+ pve-manager 3.4-13
+ pve-kernel-2.6.32-44-pve 2.6.32-173
+ pve-kernel-2.6.32-45-pve 2.6.32-174
+ lvm2 2.02.98-pve4
+ clvm 2.02.98-pve4
+ corosync-pve 1.4.7-1
+ openais-pve 1.1.4-3
+ libqb0 0.11.1-2
+ redhat-cluster-pve 3.2.0-2
+ resource-agents-pve 3.9.2-4
+ fence-agents-pve 4.0.10-3
+ pve-cluster 3.0-19
+ qemu-server 3.4-8
+ pve-firmware 1.1-5
+ libpve-common-perl 3.0-26
+ libpve-access-control 3.0-16
+ libpve-storage-perl 3.0-34
+ pve-libspice-server1 0.12.4-3
+ vncterm 1.1-8
+ vzctl 4.0-1pve6
+ vzprocps 2.0.11-2
+ vzquota 3.1-2
+ pve-qemu-kvm 2.2-25
+ ksm-control-daemon 1.1-1
+ glusterfs-client 3.5.2-1
+ cluster-status:				<-- Cluster stuff start mark
+ Version 6.2.0
+ Config-Version 9
+ Cluster-Name ICCBroadcast
+ Cluster-Id 35094
+ Cluster-Member Yes
+ Cluster-Generation 5024
+ Membership-state Cluster-Member
+ Nodes 5
+ Expected-votes 5
+ Total-votes 5
+ Node-votes 1
+ Quorum 3
+ Active-subsystems 5
+ Flags 
+ Ports-Bound 0  
+ Node-name calais02
+ Node-ID 1
+ Multicast-addresses 239.192.137.159 
+ Node-addresses 172.16.0.5 
+ local-status:					<-- VM counters start mark
+ stopped-vms 1
+ running-vms 1
+ stopped-vzs 0
+ running-vzs 1
+ stopped-lxcs 0
+ running-lxcs 0
+
+
+title: proxmoxpve.pveversion
+description:
+ This subplugin checks PROXMOX PVE related, locally installed,
+ package versions.
+ It provides details on available PVE kernels, and
+ currently booted PVE kernel and environment.
+
+items (may vary from install to install):
+ 'proxmox-ve-XXXXXXX' (currently running pve kernel)
+ 'pve-manager'
+ 'pve-kernel-XXXXXXX-pve' (one line per available kernel)
+ 'lvm2'
+ 'clvm'
+ 'corosync-pve'
+ 'openais-pve'
+ 'libqb0'
+ 'redhat-cluster-pve'
+ 'resource-agents-pve'
+ 'fence-agents-pve'
+ 'pve-cluster'
+ 'qemu-server'
+ 'pve-firmware'
+ 'libpve-common-perl'
+ 'libpve-access-control'
+ 'libpve-storage-perl'
+ 'pve-libspice-server1'
+ 'vncterm'
+ 'vzctl'
+ 'vzprocps'
+ 'vzquota'
+ 'pve-qemu-kvm'
+ 'ksm-control-daemon'
+ 'glusterfs-client'
+
+examples:
+ no configuration needed.
+
+perfdata:
+ No perfdata is generated
+
+inventory:
+ inventory function specifically catches all lines from 
+ agent output between first and second outputs marks.
+ it yields items with an empty dictionary value.
+
+[parameters]
+ Parameters are not needed.
+
+[configuration]
+ no configuration needed.
+
+
+
+title: proxmoxpve.clusterinfo
+description:
+ This subplugin gathers cluster related information
+ along with local hypervisor relationship with the
+ cluster.
+
+items:
+ 'Version'
+ 'Config-Version'
+ 'Cluster-Name'
+ 'Cluster-Id'
+ 'Cluster-Member'
+ 'Cluster-Generation'
+ 'Membership-state'
+ 'Flags'
+ 'Ports-Bound'
+ 'Node-name'
+ 'Node-ID'
+ 'Multicast-addresses'
+ 'Node-addresses'
+
+examples:
+ no configuration needed.
+
+perfdata:
+ No perfdata is generated
+
+inventory:
+ inventory function specifically catches all lines from 
+ agent output between second and third outputs marks.
+ resulting line subset is yet again filtered agains a 
+ tuple of interesting fields, to get the final subset.
+ it yields items with an empty dictionary value.
+
+[parameters]
+ Parameters are not needed.
+
+[configuration]
+ no configuration needed.
+
+
+
+title: proxmoxpve.clusterstatus
+description:
+ This subplugin allows to monitor PVE cluster values
+
+items:
+ 'Nodes'
+ 'Expected-votes'
+ 'Total-votes'
+ 'Node-votes'
+ 'Quorum'
+ 'Active-subsystems'
+
+examples:
+ factory_settings["proxmoxpve_default_values"]["Nodes"] = (8, 7)
+ factory_settings["proxmoxpve_default_values"]["Expected-votes"] = (8, 7)
+ factory_settings["proxmoxpve_default_values"]["Total-votes"] = (8, 7)
+ factory_settings["proxmoxpve_default_values"]["Node-votes"] = (8, 7)
+ factory_settings["proxmoxpve_default_values"]["Quorum"] = (8, 7)
+ factory_settings["proxmoxpve_default_values"]["Active-subsystems"] = (8, 7)
+
+perfdata:
+ All items generate value, warn, crit perfdata
+ default values are 0 and 0 values for warn and crit (disabled) 
+
+inventory:
+ inventory function specifically catches all lines from 
+ agent output between second and third outputs marks.
+ resulting line subset is yet again filtered agains a 
+ tuple of interesting fields, to get the final subset.
+ it yields items with an empty dictionary value.
+
+[parameters]
+ Parameters are common in all module via the dictionary
+ factory_settings["proxmoxpve_default_values"]
+
+ 'Nodes' -> factory_settings["proxmoxpve_default_values"]["Nodes"]
+ 'Expected-votes' -> factory_settings["proxmoxpve_default_values"]["Expected-votes"]
+ 'Total-votes' -> factory_settings["proxmoxpve_default_values"]["Total-votes"]
+ 'Node-votes' -> factory_settings["proxmoxpve_default_values"]["Node-votes"]
+ 'Quorum' -> factory_settings["proxmoxpve_default_values"]["Quorum"]
+ 'Active-subsystems' -> factory_settings["proxmoxpve_default_values"]["Active-subsystems"]
+
+[configuration]
+ no configuration needed.
+ Can be configured via WATO.
+
+
+
+title: proxmoxpve.localstatus
+description:
+ This subplugin allows to monitor locally running/stopped 
+ VMs and containers on the Hypervisor
+
+items:
+ 'stopped-vms'
+ 'running-vms'
+ 'stopped-vzs'
+ 'running-vzs'
+ 'stopped-lxcs'
+ 'running-lxcs'
+
+examples:
+ factory_settings["proxmoxpve_default_values"]["stopped-vms"] = (8, 7)
+ factory_settings["proxmoxpve_default_values"]["running-vms"] = (8, 7)
+ factory_settings["proxmoxpve_default_values"]["stopped-vzs"] = (8, 7)
+ factory_settings["proxmoxpve_default_values"]["running-vzs"] = (8, 7)
+ factory_settings["proxmoxpve_default_values"]["stopped-lxcs"] = (8, 7)
+ factory_settings["proxmoxpve_default_values"]["stopped-lxcs"] = (8, 7)
+
+perfdata:
+ All items generate value, warn, crit perfdata
+ default values are 0 and 0 values for warn and crit (disabled) 
+
+inventory:
+ inventory function specifically catches all lines from 
+ agent output from third outputs mark to the end.
+ it yields items with an empty dictionary value.
+
+[parameters]
+ Parameters are common in all module via the dictionary
+ factory_settings["proxmoxpve_default_values"]
+
+ 'stopped-vms' -> factory_settings["proxmoxpve_default_values"]["stopped-vms"]
+ 'running-vms' -> factory_settings["proxmoxpve_default_values"]["running-vms"]
+ 'stopped-vzs' -> factory_settings["proxmoxpve_default_values"]["stopped-vzs"]
+ 'running-vzs' -> factory_settings["proxmoxpve_default_values"]["running-vzs"]
+ 'stopped-lxcs' -> factory_settings["proxmoxpve_default_values"]["stopped-lxcs"]
+ 'running-lxcs' -> factory_settings["proxmoxpve_default_values"]["stopped-lxcs"]
+
+[configuration]
+ no configuration needed.
+ Can be configured via WATO. 
