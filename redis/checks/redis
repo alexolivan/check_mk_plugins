@@ -133,7 +133,7 @@ redis_agent_fields = (
 )
 
 
-factory_settings["redis_default_values"] = {
+factory_settings["redis_default_levels"] = {
     "lru_clock" : (0, 0),
     "used_cpu_sys" : (50, 75),
     "used_cpu_user" : (50, 75),
@@ -223,8 +223,8 @@ check_info["redis.info"] = {
     "inventory_function": inventory_redis_info,
     "service_description": "Redis info",
     "has_perfdata": False,
-    "group": "redis-info",
-    "default_levels_variable": "redis_default_values",
+    "group": "redis_info",
+    "default_levels_variable": "redis_default_levels",
 }
 
 
@@ -258,8 +258,8 @@ check_info["redis.status"] = {
     "inventory_function": inventory_redis_status,
     "service_description": "Redis status",
     "has_perfdata": False,
-    "group": "redis-status",
-    "default_levels_variable": "redis_default_values",    
+    "group": "redis_status",
+    "default_levels_variable": "redis_default_levels",    
 }
 
 
@@ -293,8 +293,8 @@ check_info["redis.process"] = {
     "inventory_function": inventory_redis_process,
     "service_description": "Redis process",
     "has_perfdata": False,
-    "group": "redis-process",
-    "default_levels_variable": "redis_default_values",    
+    "group": "redis_process",
+    "default_levels_variable": "redis_default_levels",    
 }
 
 
@@ -352,8 +352,8 @@ check_info["redis.cpu"] = {
     "inventory_function": inventory_redis_cpu,
     "service_description": "Redis cpu",
     "has_perfdata": True,
-    "group": "redis-cpu",
-    "default_levels_variable": "redis_default_values",
+    "group": "redis_cpu",
+    "default_levels_variable": "redis_default_levels",
 }
 
 
@@ -406,8 +406,8 @@ check_info["redis.memory"] = {
     "inventory_function": inventory_redis_memory,
     "service_description": "Redis memory",
     "has_perfdata": True,
-    "group": "redis-memory",
-    "default_levels_variable": "redis_default_values",    
+    "group": "redis_memory",
+    "default_levels_variable": "redis_default_levels",    
 }
 
 
@@ -475,8 +475,8 @@ check_info["redis.connections"] = {
     "inventory_function": inventory_redis_connections,
     "service_description": "Redis connections",
     "has_perfdata": True,
-    "group": "redis-connections",
-    "default_levels_variable": "redis_default_values",    
+    "group": "redis_connections",
+    "default_levels_variable": "redis_default_levels",    
 }
 
 
@@ -531,6 +531,6 @@ check_info["redis.keys"] = {
     "inventory_function": inventory_redis_keys,
     "service_description": "Redis keys",
     "has_perfdata": True,
-    "group": "redis-keys",
-    "default_levels_variable": "redis_default_values",    
+    "group": "redis_keys",
+    "default_levels_variable": "redis_default_levels",    
 }

@@ -35,7 +35,7 @@ subgroup_applications = _("Applications, Processes & Services")
 
 register_check_parameters(
     subgroup_applications,
-    "logstash-redis",
+    "logstash_redis",
     _("logstash established connections to redis server"),
     Dictionary(
         elements = [
@@ -60,12 +60,12 @@ register_check_parameters(
         ]
    ),
    None,
-   "first",
+   "dict",
 )
 
 register_check_parameters(
     subgroup_applications,
-    "logstash-memory",
+    "logstash_memory",
     _("logstash virtual memory"),
     Dictionary(
         elements = [
@@ -144,12 +144,12 @@ register_check_parameters(
         ]
    ),
    None,
-   "first",
+   "dict",
 )
 
 register_check_parameters(
     subgroup_applications,
-    "logstash-cpu",
+    "logstash_cpu",
     _("logstash CPU usage"),
     Dictionary(
         elements = [
@@ -174,5 +174,5 @@ register_check_parameters(
         ]
    ),
    None,
-   "first",
+   "dict",
 )

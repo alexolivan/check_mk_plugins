@@ -33,7 +33,7 @@ subgroup_applications = _("Applications, Processes & Services")
 
 register_check_parameters(
     subgroup_applications,
-    "redis-cpu",
+    "redis_cpu",
     _("redis-server cpu and LRU clock"),
     Dictionary(
         elements = [
@@ -130,13 +130,13 @@ register_check_parameters(
        ]
    ),
    None,
-   "first",
+   "dict",
 )
 
 register_check_parameters(
     subgroup_applications,
-    "redis-memory",
-    _("redis-server memory"),
+    "redis_memory",
+    _("redis server memory"),
     Dictionary(
         elements = [
             ("used_memory",
@@ -214,12 +214,12 @@ register_check_parameters(
        ]
    ),
    None,
-   "first",
+   "dict",
 )
 
 register_check_parameters(
     subgroup_applications,
-    "redis-connections",
+    "redis_connections",
     _("redis-server connections"),
     Dictionary(
         elements = [
@@ -348,13 +348,13 @@ register_check_parameters(
        ]
    ),
    None,
-   "first",
+   "dict",
 )
 
 
 register_check_parameters(
     subgroup_applications,
-    "redis-keys",
+    "redis_keys",
     _("redis-server keys"),
     Dictionary(
         elements = [
@@ -433,5 +433,5 @@ register_check_parameters(
        ]
    ),
    None,
-   "first",
+   "dict",
 )

@@ -105,7 +105,7 @@ proxmox_agent_fields = (
     )
 )
 
-factory_settings["proxmoxpve_default_values"] = {
+factory_settings["proxmoxpve_default_levels"] = {
     "Nodes" : (0,0),
     "Expected-votes" : (0,0),
     "Total-votes" : (0,0),
@@ -202,8 +202,8 @@ check_info["proxmoxpve.pveversion"] = {
     "inventory_function": inventory_proxmoxpve_pveversion,
     "service_description": "Proxmox PVE Versions",
     "has_perfdata": False,
-    "group": "pve-version",
-    "default_levels_variable": "proxmoxpve_default_values",
+    "group": "pve_version",
+    "default_levels_variable": "proxmoxpve_default_levels",
 }
 
 
@@ -237,8 +237,8 @@ check_info["proxmoxpve.clusterinfo"] = {
     "inventory_function": inventory_proxmoxpve_clusterinfo,
     "service_description": "Proxmox PVE Cluster Info",
     "has_perfdata": False,
-    "group": "pve-cluster-info",
-    "default_levels_variable": "proxmoxpve_default_values",
+    "group": "pve_cluster-info",
+    "default_levels_variable": "proxmoxpve_default_levels",
 }
 
 
@@ -300,8 +300,8 @@ check_info["proxmoxpve.clusterstatus"] = {
     "inventory_function": inventory_proxmoxpve_clusterstatus,
     "service_description": "Proxmox PVE Cluster Status",
     "has_perfdata": True,
-    "group": "pve-cluster-status",
-    "default_levels_variable": "proxmoxpve_default_values",
+    "group": "pve_cluster_status",
+    "default_levels_variable": "proxmoxpve_default_levels",
 }
 
 
@@ -363,6 +363,6 @@ check_info["proxmoxpve.localstatus"] = {
     "inventory_function": inventory_proxmoxpve_localstatus,
     "service_description": "Proxmox PVE local running instances status",
     "has_perfdata": True,
-    "group": "pve-local-status",
-    "default_levels_variable": "proxmoxpve_default_values",
+    "group": "pve_local_status",
+    "default_levels_variable": "proxmoxpve_default_levels",
 }

@@ -47,7 +47,7 @@ logstash_status_fields = (
 )
 
 
-factory_settings["logstash_default_values"] = {
+factory_settings["logstash_default_levels"] = {
     "redis_connections" : (0, 0),
     "virtual_memory" : (0, 0),
     "resident_memory" : (0, 0),
@@ -171,8 +171,8 @@ check_info["logstash.processes"] = {
     'check_function': check_logstash_processes,
     'inventory_function': inventory_logstash_processes,
     'service_description': 'Logtash processes',
-    "group": "logstash-processes",
-    "default_levels_variable": "logstash_default_values",    
+    "group": "logstash_processes",
+    "default_levels_variable": "logstash_default_levels",    
 }
 
 
@@ -211,8 +211,8 @@ check_info["logstash.redis"] = {
     'inventory_function': inventory_logstash_redis,
     'service_description': 'Logtash redis connections',
     'has_perfdata': True,
-    "group": "logstash-redis",
-    "default_levels_variable": "logstash_default_values",    
+    "group": "logstash_redis",
+    "default_levels_variable": "logstash_default_levels",    
 }
 
 
@@ -272,8 +272,8 @@ check_info["logstash.memory"] = {
     'inventory_function': inventory_logstash_memory,
     'service_description': 'Logtash memory stats',
     'has_perfdata': True,
-    "group": "logstash-memory",
-    "default_levels_variable": "logstash_default_values",    
+    "group": "logstash_memory",
+    "default_levels_variable": "logstash_default_levels",    
 }
 
 
@@ -312,6 +312,6 @@ check_info["logstash.cpu"] = {
     'inventory_function': inventory_logstash_cpu,
     'service_description': 'Logtash cpu stats',
     'has_perfdata': True,
-    "group": "logstash-cpu",
-    "default_levels_variable": "logstash_default_values",    
+    "group": "logstash_cpu",
+    "default_levels_variable": "logstash_default_levels",    
 }

@@ -34,7 +34,7 @@ subgroup_applications = _("Applications, Processes & Services")
 
 register_check_parameters(
     subgroup_applications,
-    "pve-cluster-status",
+    "pve_cluster_status",
     _("Proxmox PVE Cluster Status"),
     Dictionary(
         elements = [
@@ -149,12 +149,12 @@ register_check_parameters(
        ]
    ),
    None,
-   "first",
+   "dict",
 )
 
 register_check_parameters(
     subgroup_applications,
-    "pve-local-status",
+    "pve_local_status",
     _("Proxmox PVE local running instances status"),
     Dictionary(
         elements = [
@@ -269,5 +269,5 @@ register_check_parameters(
        ]
    ),
    None,
-   "first",
+   "dict",
 ) 
