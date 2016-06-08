@@ -1,0 +1,56 @@
+#!/bin/bash
+# +---------------------------------------------------------------------+
+# |   ____  _   _  ___  _   _ _____ ____              _           _     |
+# |  / ___|| | | |/ _ \| | | |_   _/ ___|___ __ _ ___| |_  __   _/ |    |
+# |  \___ \| |_| | | | | | | | | || |   / __/ _` / __| __| \ \ / / |    |
+# |   ___) |  _  | |_| | |_| | | || |__| (_| (_| \__ \ |_   \ V /| |    |
+# |  |____/|_| |_|\___/ \___/  |_| \____\___\__,_|___/\__|___\_/ |_|    |
+# |                                                    |_____|          |
+# |                                                                     |
+# | Copyright Alejandro Olivan 2016                 alex@alexolivan.com |
+# +---------------------------------------------------------------------+
+# | A Check_mk agent to monitor Shoutcast 1.9.8 servers on Linux        |
+# | This file contains plugin agent definition.                         |
+# +---------------------------------------------------------------------+
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, 
+# MA  02110-1301, USA.
+
+#Environment
+STARTPORT=6000
+ENDPORT=10000
+
+
+CANDIDATEPORTS=()
+POSSIBLEPORTS=`netstat -tnl | awk '{print $4}' | grep ':' | cut -d ":" -f 2 | sort | uniq`
+while read line ; do
+    if [ ${line:-0} -ge $STARTPORT ] && [ ${line:-0} -le $ENDPORT ] && [ ${line:-0} -ne 6556 ]; then
+        CANDIDATEPORTS+=($line)
+    fi
+done <<<"$POSSIBLEPORTS"
+
+echo "<<<shoutcastv1>>>"
+
+for PORT in "${CANDIDATEPORTS[@]}"
+do
+    LISTENIP=`netstat -tnl | grep ${PORT} | awk '{print $4}' | cut -d ":" -f 1`
+    if [ $LISTENIP == "0.0.0.0" ]; then
+        LISTENIP="127.0.0.1"
+    fi    
+    RESULT=`curl http://${LISTENIP}:${PORT}/7.html -A Mozilla/4.0 -s | sed 's/[^0-9,]//g' | sed 's/,/ /g' | awk '{print $1, $2, $3, $4, $5}'`
+    if [[ ! $(tr -d "\r\n" <<< $RESULT | wc -c) -eq 0 ]] && [[ $(tr -d "\r\n" <<< $RESULT | wc -w) -eq 5 ]]; then
+        echo "${PORT} ${RESULT}"
+    fi
+done
