@@ -44,18 +44,36 @@ shoutcastv1_agent_fields = (
 )
 
 factory_settings["shoutcastv1_default_levels"] = {
-    "currentlisteners" : (1,2),
+    "currentlisteners" : (1,0),
     "status" : (1,1),
     "peaklisteners" : (0,0),
     "uniquelisteners" : (0,0)
 }
 
 
-def evaluate_shoutcastv1_scalar_value(value, valuewarn, valuecrit):
+def evaluate_shoutcastv1_scalar_value(valuestr, valuewarnstr, valuecritstr):
+    value = int(valuestr)
+    valuewarn = int(valuewarnstr)
+    valuecrit = int(valuecritstr)
     if valuewarn != 0 or valuecrit != 0:
         if value < valuecrit:
             return 2
         elif value < valuewarn:
+            return 1
+        else:
+            return 0
+    else:
+        return 0
+
+
+def evaluate_shoutcastv1_max_scalar_value(valuestr, valuewarnstr, valuecritstr):
+    value = int(valuestr)
+    valuewarn = int(valuewarnstr)
+    valuecrit = int(valuecritstr)
+    if valuewarn != 0 or valuecrit != 0:
+        if value > valuecrit:
+            return 2
+        elif value > valuewarn:
             return 1
         else:
             return 0
@@ -73,7 +91,7 @@ def check_shoutcastv1(item, params, info):
     	if line[0] == item:
     	    status = 0
     	    perfdata = []
-    	    message = "DNAS 1.9.8, port %s, " % item
+    	    message = "DNAS 1.9.8, port %s " % item
     	    for index, value in enumerate(line):
     	        if index == 0:
     	            continue
@@ -82,26 +100,25 @@ def check_shoutcastv1(item, params, info):
                     result = evaluate_shoutcastv1_scalar_value(value, warn, crit)
                     if result > status:
                 	status = result
-                    perfdata.append((shoutcastv1_agent_fields[1],value, warn, crit, 0, line[5]))
+                    perfdata.append((shoutcastv1_agent_fields[1],value, warn, crit, 0, line[4]))
+                    warn, crit = params[shoutcastv1_agent_fields[3]]
+                    result = evaluate_shoutcastv1_max_scalar_value(value, warn, crit)
+                    if result > status:
+                        status = result
+                    perfdata.append((shoutcastv1_agent_fields[3],line[3], warn, crit, 0, line[4]))                    
                 if index == 2:
                     warn, crit = params[shoutcastv1_agent_fields[2]]
                     result = evaluate_shoutcastv1_scalar_value(value, warn, crit)
                     if result > status:
                         status = result
                     perfdata.append((shoutcastv1_agent_fields[2],value, warn, crit, "", ""))
-                if index == 3:
-                    warn, crit = params[shoutcastv1_agent_fields[3]]
-                    result = evaluate_shoutcastv1_scalar_value(value, warn, crit)
-                    if result > status:
-                        status = result
-                    perfdata.append((shoutcastv1_agent_fields[3],value, warn, crit, 0, line[5]))
                 if index == 5:
                     warn, crit = params[shoutcastv1_agent_fields[5]]
                     result = evaluate_shoutcastv1_scalar_value(value, warn, crit)
                     if result > status:
                         status = result
-                    perfdata.append((shoutcastv1_agent_fields[5],value, warn, crit, 0, line[5]))
-                message += "%s: %s, " % (shoutcastv1_agent_fields[index], value)
+                    perfdata.append((shoutcastv1_agent_fields[5],value, warn, crit, 0, line[4]))
+                message += ", %s: %s" % (shoutcastv1_agent_fields[index], value)
             return status, message, perfdata
 
 

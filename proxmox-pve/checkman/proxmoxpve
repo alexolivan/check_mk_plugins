@@ -191,12 +191,12 @@ items:
  'Active-subsystems'
 
 examples:
- factory_settings["proxmoxpve_default_values"]["Nodes"] = (8, 7)
- factory_settings["proxmoxpve_default_values"]["Expected-votes"] = (8, 7)
- factory_settings["proxmoxpve_default_values"]["Total-votes"] = (8, 7)
- factory_settings["proxmoxpve_default_values"]["Node-votes"] = (8, 7)
- factory_settings["proxmoxpve_default_values"]["Quorum"] = (8, 7)
- factory_settings["proxmoxpve_default_values"]["Active-subsystems"] = (8, 7)
+ factory_settings["proxmoxpve_default_levels"]["Nodes"] = (8, 7)
+ factory_settings["proxmoxpve_default_levels"]["Expected-votes"] = (8, 7)
+ factory_settings["proxmoxpve_default_levels"]["Total-votes"] = (8, 7)
+ factory_settings["proxmoxpve_default_levels"]["Node-votes"] = (8, 7)
+ factory_settings["proxmoxpve_default_levels"]["Quorum"] = (8, 7)
+ factory_settings["proxmoxpve_default_levels"]["Active-subsystems"] = (8, 7)
 
 perfdata:
  All items generate value, warn, crit perfdata
@@ -211,14 +211,14 @@ inventory:
 
 [parameters]
  Parameters are common in all module via the dictionary
- factory_settings["proxmoxpve_default_values"]
+ factory_settings["proxmoxpve_default_levels"]
 
- 'Nodes' -> factory_settings["proxmoxpve_default_values"]["Nodes"]
- 'Expected-votes' -> factory_settings["proxmoxpve_default_values"]["Expected-votes"]
- 'Total-votes' -> factory_settings["proxmoxpve_default_values"]["Total-votes"]
- 'Node-votes' -> factory_settings["proxmoxpve_default_values"]["Node-votes"]
- 'Quorum' -> factory_settings["proxmoxpve_default_values"]["Quorum"]
- 'Active-subsystems' -> factory_settings["proxmoxpve_default_values"]["Active-subsystems"]
+ 'Nodes' -> factory_settings["proxmoxpve_default_levels"]["Nodes"]
+ 'Expected-votes' -> factory_settings["proxmoxpve_default_levels"]["Expected-votes"]
+ 'Total-votes' -> factory_settings["proxmoxpve_default_levels"]["Total-votes"]
+ 'Node-votes' -> factory_settings["proxmoxpve_default_levels"]["Node-votes"]
+ 'Quorum' -> factory_settings["proxmoxpve_default_levels"]["Quorum"]
+ 'Active-subsystems' -> factory_settings["proxmoxpve_default_levels"]["Active-subsystems"]
 
 [configuration]
  no configuration needed.
@@ -240,12 +240,12 @@ items:
  'running-lxcs'
 
 examples:
- factory_settings["proxmoxpve_default_values"]["stopped-vms"] = (8, 7)
- factory_settings["proxmoxpve_default_values"]["running-vms"] = (8, 7)
- factory_settings["proxmoxpve_default_values"]["stopped-vzs"] = (8, 7)
- factory_settings["proxmoxpve_default_values"]["running-vzs"] = (8, 7)
- factory_settings["proxmoxpve_default_values"]["stopped-lxcs"] = (8, 7)
- factory_settings["proxmoxpve_default_values"]["stopped-lxcs"] = (8, 7)
+ factory_settings["proxmoxpve_default_levels"]["stopped-vms"] = (8, 7)
+ factory_settings["proxmoxpve_default_levels"]["running-vms"] = (8, 7)
+ factory_settings["proxmoxpve_default_levels"]["stopped-vzs"] = (8, 7)
+ factory_settings["proxmoxpve_default_levels"]["running-vzs"] = (8, 7)
+ factory_settings["proxmoxpve_default_levels"]["stopped-lxcs"] = (8, 7)
+ factory_settings["proxmoxpve_default_levels"]["stopped-lxcs"] = (8, 7)
 
 perfdata:
  All items generate value, warn, crit perfdata
@@ -258,14 +258,14 @@ inventory:
 
 [parameters]
  Parameters are common in all module via the dictionary
- factory_settings["proxmoxpve_default_values"]
+ factory_settings["proxmoxpve_default_levels"]
 
- 'stopped-vms' -> factory_settings["proxmoxpve_default_values"]["stopped-vms"]
- 'running-vms' -> factory_settings["proxmoxpve_default_values"]["running-vms"]
- 'stopped-vzs' -> factory_settings["proxmoxpve_default_values"]["stopped-vzs"]
- 'running-vzs' -> factory_settings["proxmoxpve_default_values"]["running-vzs"]
- 'stopped-lxcs' -> factory_settings["proxmoxpve_default_values"]["stopped-lxcs"]
- 'running-lxcs' -> factory_settings["proxmoxpve_default_values"]["stopped-lxcs"]
+ 'stopped-vms' -> factory_settings["proxmoxpve_default_levels"]["stopped-vms"]
+ 'running-vms' -> factory_settings["proxmoxpve_default_levels"]["running-vms"]
+ 'stopped-vzs' -> factory_settings["proxmoxpve_default_levels"]["stopped-vzs"]
+ 'running-vzs' -> factory_settings["proxmoxpve_default_levels"]["running-vzs"]
+ 'stopped-lxcs' -> factory_settings["proxmoxpve_default_levels"]["stopped-lxcs"]
+ 'running-lxcs' -> factory_settings["proxmoxpve_default_levels"]["stopped-lxcs"]
 
 [configuration]
  no configuration needed.

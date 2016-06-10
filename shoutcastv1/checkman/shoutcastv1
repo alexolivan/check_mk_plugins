@@ -1,0 +1,74 @@
+title: logstash
+agents: linux (just tested on Debian Linux)
+catalog: "app","Applications"
+license: GPL
+distribution:
+
+description:
+ This plugin is intended to monitor the status of running 
+ instances of SHOUTCast DNAS 1.9.8 streaming servers in the
+ local machine.
+
+ The agent looks for those server from within a port range
+ hardcoded in the agent code from 6000 to 10000, So alter 
+ code agent to expand or narrow port range to scan.
+ The data is gathered through usage of 'curl' command against
+ public /7.html site status web service present in DNAS 1.9.8
+ also 'netstat', 'sed', 'grep' and 'awk' are needed.
+ Shell is bash.
+
+ server discovery is done with 'netstat' command:
+ netstat -tnl | awk '{print $4}' | grep ':' | cut -d ":" -f 2 | sort | uniq
+
+ server configured listenin ip is in turn retrieved like so:
+ netstat -tnl | grep ${PORT} | awk '{print $4}' | cut -d ":" -f 1
+
+ finally, data is fetch from server's 7.html status with 'curl'
+ curl http://${LISTENIP}:${PORT}/7.html -A Mozilla/4.0 -s | sed 's/[^0-9,]//g' | sed 's/,/ /g' | awk '{print $1, $2, $3, $4, $5}'
+
+
+ Every correctly fetched running DNAS instance is added to
+ the agent output and will generate a item on check_mk plugin
+
+
+ Example output from agent:
+ <<<shoutcastv1>>>
+ 8006 267 1 148 500 353
+
+
+title: shoutcastv1
+description:
+ This check gets memory usage report per logstash instance.
+
+item:
+ Items are generated from a listen port basis.
+ Every local server generates an item wich is identified by its listening port.
+
+examples:
+ shoutcastv1_default_levels[1] = (1, 0)
+ shoutcastv1_default_levels[2] = (1, 1)
+ shoutcastv1_default_levels[3] = (500, 750)
+ shoutcastv1_default_levels[4] = (450, 700)
+
+perfdata:
+ All items generate value, warn, crit perfdata list of tuples for every
+ distinct parameter.
+ default values differ from concept to concept.
+
+inventory:
+ inventory function specifically catches column values from
+ agent output (port) to generate items.
+ it yields items with shoutcastv1_default_levels full list
+
+[parameters]
+ Parameters are common in al module via the list of tupples
+ shoutcastv1_default_levels
+
+ 'currentlisteners' -> shoutcastv1_default_levels[1]
+ 'status' -> shoutcastv1_default_levels[2]
+ 'peaklisteners' -> shoutcastv1_default_levels[3]
+ 'uniquelisteners' -> shoutcastv1_default_levels[4]
+
+[configuration]
+ no configuration needed.
+ Can be configured via WATO.

@@ -13,3 +13,4 @@ The main flaw is that for that reason, the plugins are meant to run on linux, an
 - logstash (tested with elasticsearch 1.5)
 - Redis-Server
 - PROXMOX PVE (tested wit 3.x)
+- SHOUTCast DNAS 1.9.8

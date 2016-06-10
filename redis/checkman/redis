@@ -178,11 +178,11 @@ items:
  'used_cpu_user_children' User CPU used by child processes
 
 examples:
- factory_settings["redis_default_values"]["lru_clock"] = (128000, 512000)
- factory_settings["redis_default_values"]["used_cpu_sys"] = (33, 66)
- factory_settings["redis_default_values"]["used_cpu_user"] = (33, 66)
- factory_settings["redis_default_values"]["used_cpu_sys_children"] = (33, 66)
- factory_settings["redis_default_values"]["used_cpu_user_children"] = (33, 66)
+ factory_settings["redis_default_levels"]["lru_clock"] = (128000, 512000)
+ factory_settings["redis_default_levels"]["used_cpu_sys"] = (33, 66)
+ factory_settings["redis_default_levels"]["used_cpu_user"] = (33, 66)
+ factory_settings["redis_default_levels"]["used_cpu_sys_children"] = (33, 66)
+ factory_settings["redis_default_levels"]["used_cpu_user_children"] = (33, 66)
 
 perfdata:
  All items generate value, warn, crit perfdata
@@ -196,13 +196,13 @@ inventory:
 
 [parameters]
  Parameters are common in al module via the dictionary
- factory_settings["redis_default_values"]
+ factory_settings["redis_default_levels"]
 
- 'lru_clock' -> factory_settings["redis_default_values"]["lru_clock"]
- 'used_cpu_sys' -> factory_settings["redis_default_values"]["used_cpu_sys"]
- 'used_cpu_user' -> factory_settings["redis_default_values"]["used_cpu_user"]
- 'used_cpu_sys_children' -> factory_settings["redis_default_values"]["used_cpu_sys_children"]
- 'used_cpu_user_children' -> factory_settings["redis_default_values"]["used_cpu_user_children"]
+ 'lru_clock' -> factory_settings["redis_default_levels"]["lru_clock"]
+ 'used_cpu_sys' -> factory_settings["redis_default_levels"]["used_cpu_sys"]
+ 'used_cpu_user' -> factory_settings["redis_default_levels"]["used_cpu_user"]
+ 'used_cpu_sys_children' -> factory_settings["redis_default_levels"]["used_cpu_sys_children"]
+ 'used_cpu_user_children' -> factory_settings["redis_default_levels"]["used_cpu_user_children"]
 
 [configuration]
  no configuration needed.
@@ -222,10 +222,10 @@ items:
  'mem_fragmentation_ratio' Memory Fragmentation Ratio
 
 examples:
- factory_settings["redis_default_values"]["used_memory"] = (128000, 512000)
- factory_settings["redis_default_values"]["used_memory_rss"] = (128000, 512000)
- factory_settings["redis_default_values"]["used_memory_peak"] = (128000, 512000)
- factory_settings["redis_default_values"]["mem_fragmentation_ratio"] = (33, 66)
+ factory_settings["redis_default_levels"]["used_memory"] = (128000, 512000)
+ factory_settings["redis_default_levels"]["used_memory_rss"] = (128000, 512000)
+ factory_settings["redis_default_levels"]["used_memory_peak"] = (128000, 512000)
+ factory_settings["redis_default_levels"]["mem_fragmentation_ratio"] = (33, 66)
 
 perfdata:
  All items generate value, warn, crit perfdata
@@ -238,12 +238,12 @@ inventory:
 
 [parameters]
  Parameters are common in al module via the dictionary
- factory_settings["redis_default_values"]
+ factory_settings["redis_default_levels"]
 
- 'used_memory' -> factory_settings["redis_default_values"]["used_memory"]
- 'used_memory_rss' -> factory_settings["redis_default_values"]["used_memory_rss"]
- 'used_memory_peak' ->  factory_settings["redis_default_values"]["used_memory_peak"]
- 'mem_fragmentation_ratio' -> factory_settings["redis_default_values"]["mem_fragmentation_ratio"]
+ 'used_memory' -> factory_settings["redis_default_levels"]["used_memory"]
+ 'used_memory_rss' -> factory_settings["redis_default_levels"]["used_memory_rss"]
+ 'used_memory_peak' ->  factory_settings["redis_default_levels"]["used_memory_peak"]
+ 'mem_fragmentation_ratio' -> factory_settings["redis_default_levels"]["mem_fragmentation_ratio"]
 
 [configuration]
  no configuration needed.
@@ -266,13 +266,13 @@ items:
  'total_commands_processed' commands processed counter
 
 examples:
- factory_settings["redis_default_values"]["connected_clients"] = (12, 24)
- factory_settings["redis_default_values"]["connected_slaves"] = (4, 2)
- factory_settings["redis_default_values"]["client_longest_output_list"] = (128000, 512000)
- factory_settings["redis_default_values"]["client_biggest_input_buf"] = (128000, 512000)
- factory_settings["redis_default_values"]["blocked_clients"] = (20, 30)
- factory_settings["redis_default_values"]["total_connections_received"] = (128000, 512000)
- factory_settings["redis_default_values"]["total_commands_processed"] = (128000, 512000) 
+ factory_settings["redis_default_levels"]["connected_clients"] = (12, 24)
+ factory_settings["redis_default_levels"]["connected_slaves"] = (4, 2)
+ factory_settings["redis_default_levels"]["client_longest_output_list"] = (128000, 512000)
+ factory_settings["redis_default_levels"]["client_biggest_input_buf"] = (128000, 512000)
+ factory_settings["redis_default_levels"]["blocked_clients"] = (20, 30)
+ factory_settings["redis_default_levels"]["total_connections_received"] = (128000, 512000)
+ factory_settings["redis_default_levels"]["total_commands_processed"] = (128000, 512000) 
 
 perfdata:
  All items generate value, warn, crit perfdata
@@ -285,15 +285,15 @@ inventory:
 
 [parameters]
  Parameters are common in al module via the dictionary
- factory_settings["redis_default_values"]
+ factory_settings["redis_default_levels"]
 
- 'connected_clients' -> factory_settings["redis_default_values"]["connected_clients"]
- 'connected_slaves' -> factory_settings["redis_default_values"]["connected_slaves"]
- 'client_longest_output_list' -> factory_settings["redis_default_values"]["client_longest_output_list"]
- 'client_biggest_input_buf' -> factory_settings["redis_default_values"]["client_biggest_input_buf"]
- 'blocked_clients' -> factory_settings["redis_default_values"]["blocked_clients"]
- 'total_connections_received' -> factory_settings["redis_default_values"]["total_connections_received"]
- 'total_commands_processed' -> factory_settings["redis_default_values"]["total_commands_processed"]
+ 'connected_clients' -> factory_settings["redis_default_levels"]["connected_clients"]
+ 'connected_slaves' -> factory_settings["redis_default_levels"]["connected_slaves"]
+ 'client_longest_output_list' -> factory_settings["redis_default_levels"]["client_longest_output_list"]
+ 'client_biggest_input_buf' -> factory_settings["redis_default_levels"]["client_biggest_input_buf"]
+ 'blocked_clients' -> factory_settings["redis_default_levels"]["blocked_clients"]
+ 'total_connections_received' -> factory_settings["redis_default_levels"]["total_connections_received"]
+ 'total_commands_processed' -> factory_settings["redis_default_levels"]["total_commands_processed"]
 
 [configuration]
  no configuration needed.
@@ -313,10 +313,10 @@ items:
  'keyspace_misses' Misses counter
 
 examples:
- factory_settings["redis_default_values"]["expired_keys"] = (12, 24)
- factory_settings["redis_default_values"]["evicted_keys"] = (100, 150)
- factory_settings["redis_default_values"]["keyspace_hits"] = (300, 400)
- factory_settings["redis_default_values"]["keyspace_misses"] = (200, 300) 
+ factory_settings["redis_default_levels"]["expired_keys"] = (12, 24)
+ factory_settings["redis_default_levels"]["evicted_keys"] = (100, 150)
+ factory_settings["redis_default_levels"]["keyspace_hits"] = (300, 400)
+ factory_settings["redis_default_levels"]["keyspace_misses"] = (200, 300) 
 
 perfdata:
  All items generate value, warn, crit perfdata
@@ -329,12 +329,12 @@ inventory:
 
 [parameters]
  Parameters are common in al module via the dictionary
- factory_settings["redis_default_values"]
+ factory_settings["redis_default_levels"]
 
- 'expired_keys' -> factory_settings["redis_default_values"]["expired_keys"]
- 'evicted_keys' -> factory_settings["redis_default_values"]["evicted_keys"]
- 'keyspace_hits' -> factory_settings["redis_default_values"]["keyspace_hits"]
- 'keyspace_misses' -> factory_settings["redis_default_values"]["keyspace_misses"]
+ 'expired_keys' -> factory_settings["redis_default_levels"]["expired_keys"]
+ 'evicted_keys' -> factory_settings["redis_default_levels"]["evicted_keys"]
+ 'keyspace_hits' -> factory_settings["redis_default_levels"]["keyspace_hits"]
+ 'keyspace_misses' -> factory_settings["redis_default_levels"]["keyspace_misses"]
 
 [configuration]
  no configuration needed.
