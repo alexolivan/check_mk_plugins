@@ -43,7 +43,7 @@ if [ ! -z "${INSTANCES}" ]; then
                         REDISCONNS="nan"
                 fi
 
-                SYSUSAGE=`top -b -n 1 | grep ${line} | awk '{print $5, $6, $7, $9, $10, $11}'` 
+                SYSUSAGE=`top -b -n 1 -p ${line} | grep ${line} | awk '{print $5, $6, $7, $9, $10, $11}'` 
                 if [ -z "${SYSUSAGE}" ]; then
                         SYSUSAGE="nan nan nan nan nan nan"
                 fi

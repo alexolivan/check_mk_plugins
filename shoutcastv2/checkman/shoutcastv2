@@ -1,0 +1,77 @@
+title: logstash
+agents: linux (just tested on Debian Linux)
+catalog: "app","Applications"
+license: GPL
+distribution:
+
+description:
+ This plugin is intended to monitor the status of running 
+ instances of SHOUTCast DNAS 2.x streaming servers in the
+ local machine.
+
+ The agent looks for those server from within a port range
+ hardcoded in the agent code from 6000 to 10000, So alter 
+ code agent to expand or narrow port range to scan.
+ The data is gathered through usage of 'curl' command against
+ public /status XML site status web service present in DNAS 2.x
+ also 'netstat', 'sed', 'grep' and 'awk' are needed.
+ Shell is bash.
+
+ server discovery is done with 'netstat' command:
+ netstat -tnl | awk '{print $4}' | grep ':' | cut -d ":" -f 2 | sort | uniq
+
+ server configured listenin ip is in turn retrieved like so:
+ netstat -tnl | grep ${PORT} | awk '{print $4}' | cut -d ":" -f 1
+
+ finally, data is fetch from server's stats status with 'curl'
+ curl http://${LISTENIP}:${PORT}/stats?sid=1 -A Mozilla/4.0 -s | grep SHOUTCASTSERVER
+
+ XML is parsed like this, field by filed in a loop
+ CURRENTLISTENERS=`grep -oPm1 "(?<=<CURRENTLISTENERS>)[^<]+" <<< "$RESULT"`
+
+
+ Every correctly fetched running DNAS instance is added to
+ the agent output and will generate a item on check_mk plugin
+
+
+ Example output from agent:
+ <<<shoutcastv2>>>
+ 8006 267 1 148 500 353
+
+
+title: shoutcastv2
+description:
+ This check gets memory usage report per logstash instance.
+
+item:
+ Items are generated from a listen port basis.
+ Every local server generates an item wich is identified by its listening port.
+
+examples:
+ shoutcastv2_default_levels[1] = (1, 0)
+ shoutcastv2_default_levels[2] = (1, 1)
+ shoutcastv2_default_levels[3] = (500, 750)
+ shoutcastv2_default_levels[4] = (450, 700)
+
+perfdata:
+ All items generate value, warn, crit perfdata list of tuples for every
+ distinct parameter.
+ default values differ from concept to concept.
+
+inventory:
+ inventory function specifically catches column values from
+ agent output (port) to generate items.
+ it yields items with shoutcastv2_default_levels full list
+
+[parameters]
+ Parameters are common in al module via the list of tupples
+ shoutcastv2_default_levels
+
+ 'currentlisteners' -> shoutcastv2_default_levels[1]
+ 'status' -> shoutcastv2_default_levels[2]
+ 'peaklisteners' -> shoutcastv2_default_levels[3]
+ 'uniquelisteners' -> shoutcastv2_default_levels[4]
+
+[configuration]
+ no configuration needed.
+ Can be configured via WATO.

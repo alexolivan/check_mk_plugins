@@ -1,0 +1,133 @@
+#!/usr/bin/python
+# -*- encoding: utf-8; py-indent-offset: 4 -*-
+# +---------------------------------------------------------------------+
+# |  ____  _   _  ___  _   _ _____ ____              _           ____   |
+# | / ___|| | | |/ _ \| | | |_   _/ ___|___ __ _ ___| |_  __   _|___ \  |
+# | \___ \| |_| | | | | | | | | || |   / __/ _` / __| __| \ \ / / __) | |
+# |  ___) |  _  | |_| | |_| | | || |__| (_| (_| \__ \ |_   \ V / / __/  |
+# | |____/|_| |_|\___/ \___/  |_| \____\___\__,_|___/\__|___\_/ |_____| |
+# |                                                   |_____|           |
+# |                                                                     |
+# | Copyright Alejandro Olivan 2016                 alex@alexolivan.com |
+# +---------------------------------------------------------------------+
+# | A Check_mk agent to monitor Shoutcast 2.x servers on Linux          |
+# | This file contains the check definition / inventory code.           |
+# +---------------------------------------------------------------------+
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, 
+# MA  02110-1301, USA.
+
+# Example output from agent:
+#<<<shoutcastv2>>>
+#8006 0 0 1 500 0
+
+
+shoutcastv2_agent_fields = (
+    'port',
+    'currentlisteners',
+    'status',
+    'peaklisteners',
+    'maxlisteners',
+    'uniquelisteners'
+)
+
+factory_settings["shoutcastv2_default_levels"] = {
+    "currentlisteners" : (1,0),
+    "status" : (1,1),
+    "peaklisteners" : (0,0),
+    "uniquelisteners" : (0,0)
+}
+
+
+def evaluate_shoutcastv2_scalar_value(valuestr, valuewarnstr, valuecritstr):
+    value = int(valuestr)
+    valuewarn = int(valuewarnstr)
+    valuecrit = int(valuecritstr)
+    if valuewarn != 0 or valuecrit != 0:
+        if value < valuecrit:
+            return 2
+        elif value < valuewarn:
+            return 1
+        else:
+            return 0
+    else:
+        return 0
+
+
+def evaluate_shoutcastv2_max_scalar_value(valuestr, valuewarnstr, valuecritstr):
+    value = int(valuestr)
+    valuewarn = int(valuewarnstr)
+    valuecrit = int(valuecritstr)
+    if valuewarn != 0 or valuecrit != 0:
+        if value > valuecrit:
+            return 2
+        elif value > valuewarn:
+            return 1
+        else:
+            return 0
+    else:
+        return 0
+
+
+def inventory_shoutcastv2(info):
+    for line in info:
+        yield line[0], {}
+
+
+def check_shoutcastv2(item, params, info):
+    for line in info:
+    	if line[0] == item:
+    	    status = 0
+    	    perfdata = []
+    	    message = "DNAS 2.x, port %s " % item
+    	    for index, value in enumerate(line):
+    	        if index == 0:
+    	            continue
+                if index == 1:
+                    warn, crit = params[shoutcastv2_agent_fields[1]]
+                    result = evaluate_shoutcastv2_scalar_value(value, warn, crit)
+                    if result > status:
+                	status = result
+                    perfdata.append((shoutcastv2_agent_fields[1],value, warn, crit, 0, line[4]))
+                    warn, crit = params[shoutcastv2_agent_fields[3]]
+                    result = evaluate_shoutcastv2_max_scalar_value(value, warn, crit)
+                    if result > status:
+                        status = result
+                    perfdata.append((shoutcastv2_agent_fields[3],line[3], warn, crit, 0, line[4]))                    
+                if index == 2:
+                    warn, crit = params[shoutcastv2_agent_fields[2]]
+                    result = evaluate_shoutcastv2_scalar_value(value, warn, crit)
+                    if result > status:
+                        status = result
+                    perfdata.append((shoutcastv2_agent_fields[2],value, warn, crit, "", ""))
+                if index == 5:
+                    warn, crit = params[shoutcastv2_agent_fields[5]]
+                    result = evaluate_shoutcastv2_scalar_value(value, warn, crit)
+                    if result > status:
+                        status = result
+                    perfdata.append((shoutcastv2_agent_fields[5],value, warn, crit, 0, line[4]))
+                message += ", %s: %s" % (shoutcastv2_agent_fields[index], value)
+            return status, message, perfdata
+
+
+
+check_info["shoutcastv2"] = {
+    'check_function': check_shoutcastv2,
+    'inventory_function': inventory_shoutcastv2,
+    'service_description': 'SHOUTCast DNAS 2.x',
+    'has_perfdata': True,
+    "group": "shoutcastv2",
+    "default_levels_variable": "shoutcastv2_default_levels",    
+}

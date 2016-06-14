@@ -14,3 +14,5 @@ The main flaw is that for that reason, the plugins are meant to run on linux, an
 - Redis-Server
 - PROXMOX PVE (tested wit 3.x)
 - SHOUTCast DNAS 1.9.8
+- SHOUTCast DNAS 2.x
+- Icecast2 (Only newer than 2.4.1 with json xsl stats enabled)
