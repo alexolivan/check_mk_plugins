@@ -96,23 +96,23 @@ def check_icecast2(item, params, info):
     	        if index == 0:
     	            continue
                 if index == 1:
-                    warn, crit = params[shoutcastv2_agent_fields[1]]
-                    result = evaluate_shoutcastv2_scalar_value(value, warn, crit)
+                    warn, crit = params[icecast2_agent_fields[1]]
+                    result = evaluate_icecast2_scalar_value(value, warn, crit)
                     if result > status:
                 	status = result
-                    perfdata.append((shoutcastv2_agent_fields[1],value, warn, crit, 0, params[shoutcastv2_agent_fields[3]]))
-                    warn, crit = params[shoutcastv2_agent_fields[3]]
-                    result = evaluate_shoutcastv2_max_scalar_value(value, warn, crit)
+                    perfdata.append((icecast2_agent_fields[1],value, warn, crit, 0, params["maxlisteners"]))
+                    warn, crit = params[icecast2_agent_fields[3]]
+                    result = evaluate_icecast2_max_scalar_value(value, warn, crit)
                     if result > status:
                         status = result
-                    perfdata.append((shoutcastv2_agent_fields[3],line[3], warn, crit))                   
+                    perfdata.append((icecast2_agent_fields[3],line[3], warn, crit))                   
                 if index == 2:
-                    warn, crit = params[shoutcastv2_agent_fields[2]]
-                    result = evaluate_shoutcastv2_scalar_value(value, warn, crit)
+                    warn, crit = params[icecast2_agent_fields[2]]
+                    result = evaluate_icecast2_scalar_value(value, warn, crit)
                     if result > status:
                         status = result
-                    perfdata.append((shoutcastv2_agent_fields[2],value, warn, crit, "", ""))
-                message += ", %s: %s" % (shoutcastv2_agent_fields[index], value)
+                    perfdata.append((icecast2_agent_fields[2],value, warn, crit, "", ""))
+                message += ", %s: %s" % (icecast2_agent_fields[index], value)
             return status, message, perfdata
 
 
