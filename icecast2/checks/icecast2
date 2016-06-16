@@ -28,6 +28,13 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, 
 # MA  02110-1301, USA.
 
+# Example output from agent:
+#<<<Icecast2>>>
+#6017 0 0 0
+#6020 6 1 136
+#8130 109 1 556
+
+
 
 icecast2_agent_fields = (
     'port',
@@ -93,12 +100,12 @@ def check_icecast2(item, params, info):
                     result = evaluate_shoutcastv2_scalar_value(value, warn, crit)
                     if result > status:
                 	status = result
-                    perfdata.append((shoutcastv2_agent_fields[1],value, warn, crit, 0, params[shoutcastv2_agent_fields[3]])
+                    perfdata.append((shoutcastv2_agent_fields[1],value, warn, crit, 0, params[shoutcastv2_agent_fields[3]]))
                     warn, crit = params[shoutcastv2_agent_fields[3]]
                     result = evaluate_shoutcastv2_max_scalar_value(value, warn, crit)
                     if result > status:
                         status = result
-                    perfdata.append((shoutcastv2_agent_fields[3],line[3], warn, crit)                    
+                    perfdata.append((shoutcastv2_agent_fields[3],line[3], warn, crit))                   
                 if index == 2:
                     warn, crit = params[shoutcastv2_agent_fields[2]]
                     result = evaluate_shoutcastv2_scalar_value(value, warn, crit)

@@ -46,7 +46,7 @@ while read line ; do
     fi
 done <<<"$POSSIBLEPORTS"
 
-echo "<<<Icecast2>>>"
+echo "<<<icecast2>>>"
 
 for PORT in "${CANDIDATEPORTS[@]}"
 do

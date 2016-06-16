@@ -1,0 +1,104 @@
+title: icecast2
+agents: linux (just tested on Debian Linux)
+catalog: "app","Applications"
+license: GPL
+distribution:
+
+description:
+ This plugin is intended to monitor the status of running 
+ instances of Icecast2 v2.4.x streaming servers in the
+ local machine.
+
+ The agent looks for those servers from within a port range
+ hardcoded in the agent code from 6000 to 10000, So alter 
+ code agent to expand or narrow port range to scan.
+
+ The data is gathered through usage of 'curl' command against
+ public /status-json.xsl site json status web service present in 
+ Icecast2 from version 2.4.1 upwards that do prompt xslt 
+ generation of json status reply over http back.
+ Older servers do not offer enough information without 
+ authentication and do not work.
+ The plugin is intended to fetch global server status data.
+ It will not scan every server's up mountpoints recursively
+ for per-mountpoint info.
+
+ As of the writing of the agent, 2.4.1 generated json by 
+ status-json.xsl is invalid. This means that json parsing tools 
+ such as 'jq' fail.
+ Although there are alternative status-json.xsl around in github 
+ that do work well, I prefer to keep Iceast stuff untouched, parse 
+ data manually and wait for newer versions of Icecast solve this
+ and then rewrite the agent.
+ All this means that under some circumstances the data is not
+ correctly parsed by the agent and it is then ignored.
+
+ server discovery is done with 'netstat' command:
+ netstat -tnl | awk '{print $4}' | grep ':' | cut -d ":" -f 2 | sort | uniq
+
+ server configured listenin ip is in turn retrieved like so:
+ netstat -tnl | grep ${PORT} | awk '{print $4}' | cut -d ":" -f 1
+
+ Server discovery is done by inspecting ICY headers on http 
+ reply from Icecast2 servers during scan:
+ curl http://${LISTENIP}:${PORT}/status-json.xsl -A Mozilla/4.0 -s -I | grep Icecast
+
+ Status json replies are parsed with a complicated 'sed', 'awk', 
+ 'grep' and 'cut' piped filters function:
+ function jsonval {
+    temp=`echo $RESULT | sed 's/\\\\\//\//g' | 
+ sed 's/[{}]//g' | awk -v k="text" '{n=split($0,a,","); for (i=1; i<=n; i++) print a[i]}' | 
+ sed 's/\"\:\"/\|/g' | sed 's/[\,]/ /g' | sed 's/\"//g' | grep -w $TARGETPROP | cut -d ":" -f 2`
+    echo ${temp##*|}
+ }
+
+ Data is fetch from server's stats status with 'curl'
+ curl http://${LISTENIP}:${PORT}/stats?sid=1 -A Mozilla/4.0 -s
+
+
+ Every correctly fetched running Icecast2 instance is added to
+ the agent output and will generate a item on check_mk plugin
+
+ Example output from agent:
+ <<<Icecast2>>>
+ 6017 0 0 0
+ 6020 6 1 136
+ 8130 109 1 556
+
+
+title: icecast2
+description:
+ This check gets memory usage report per logstash instance.
+
+item:
+ Items are generated from a listen port basis.
+ Every local server generates an item wich is identified by its listening port.
+
+examples:
+ icecast2_default_levels[0] = (1, 0)
+ icecast2_default_levels[1] = (1, 1)
+ icecast2_default_levels[2] = (500, 750)
+ icecast2_default_levels[3] = 2048
+
+perfdata:
+ All items generate value, warn, crit perfdata list of tuples for every
+ distinct parameter.
+ default values differ from concept to concept.
+
+inventory:
+ inventory function specifically catches column values from
+ agent output (port) to generate items.
+ it yields items with icecast2_default_levels full list
+
+[parameters]
+ Parameters are common in al module via the list of tupples
+ icecast2_default_levels
+
+ 'currentlisteners' -> icecast2_default_levels[0]
+ 'status' -> icecast2_default_levels[1]
+ 'peaklisteners' -> icecast2_default_levels[2]
+ 'maxlisteners' -> icecast2_default_levels[3]
+
+[configuration]
+ no configuration needed.
+ Can be configured via WATO.

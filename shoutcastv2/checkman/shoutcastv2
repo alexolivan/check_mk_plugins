@@ -1,4 +1,4 @@
-title: logstash
+title: shoutcastv2
 agents: linux (just tested on Debian Linux)
 catalog: "app","Applications"
 license: GPL
@@ -41,7 +41,7 @@ description:
 
 title: shoutcastv2
 description:
- This check gets memory usage report per logstash instance.
+ This check gets usage report per Shoutcast2 instance.
 
 item:
  Items are generated from a listen port basis.
