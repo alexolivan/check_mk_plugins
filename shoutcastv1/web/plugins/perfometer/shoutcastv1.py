@@ -50,21 +50,22 @@ def perfometer_shoutcastv1(row, check_command, perf_data):
     else:
         color = {0: "#fa0", 1: "#fa2"}
 
-    if peak_warn != 0 or peak_crit != 0:
-        if peak > int(perf_data[1][4]):
-    	    color[3] = "#f00"
-        elif peak > int(perf_data[1][3]):
-    	    color[3] = "#ff0"
-        else:
-    	    color[3] = "#0f0"
-    else:
-    	color[3] = "#0f0"
-
     usage = int(current / float(maxim) * 100)
+    peak_usage = int(peak / float(maxim) * 100)    
     unique_usage = int(unique / float(maxim) * 100)
     repeated_usage = int(repeated / float(maxim) * 100)
     cur_to_peak = int((peak - current) / float(maxim) * 100) - 1
     peak_to_max = int((maxim - peak) / float(maxim) * 100)
+
+    if peak_warn != 0 or peak_crit != 0:
+        if peak_usage > peak_crit:
+            color[3] = "#f00"
+        elif peak_usage > peak_warn:
+            color[3] = "#ff0"
+        else:
+            color[3] = "#0f0"
+    else:
+        color[3] = "#0f0"
 
     return "%d%%" % usage, '<table><tr>' \
                                + perfometer_td(unique_usage, color[0]) \
