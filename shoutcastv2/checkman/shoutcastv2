@@ -50,7 +50,7 @@ item:
 examples:
  shoutcastv2_default_levels[1] = (1, 0)
  shoutcastv2_default_levels[2] = (1, 1)
- shoutcastv2_default_levels[3] = (500, 750)
+ shoutcastv2_default_levels[3] = (80, 90)
  shoutcastv2_default_levels[4] = (450, 700)
 
 perfdata:

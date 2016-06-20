@@ -76,17 +76,17 @@ register_check_parameters(
             ("peaklisteners",
                 Tuple(
                     title = _("Peak listeners"),
-                    help = _("Maximum number of connected listeners to the server"),
+                    help = _("Maximum percent usage of the server based alarm based in peaklisteners"),
                     elements = [
                         Integer(
-                        	title = _("Warning if over"),
-                        	unit = _("Listeners"),
-                        	default_value = 0
+                            title = _("Warning if over"),
+                            unit = _("Percent"),
+                            default_value = 80
                         ),
                         Integer(
-                        	title = _("Critical if over"),
-                        	unit = _("Listeners"),
-                        	default_value = 0
+                            title = _("Critical if over"),
+                            unit = _("Percent"),
+                            default_value = 90
                         ),
                     ]
                 )
