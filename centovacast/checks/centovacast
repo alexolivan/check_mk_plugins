@@ -1,0 +1,239 @@
+#!/usr/bin/python
+# -*- encoding: utf-8; py-indent-offset: 4 -*-
+# +---------------------------------------------------------------------+
+# |         ____           _                   ____          _          |
+# |        / ___|___ _ __ | |_ _____   ____ _ / ___|__ _ ___| |_        |
+# |       | |   / _ \ '_ \| __/ _ \ \ / / _` | |   / _` / __| __|       |
+# |       | |__|  __/ | | | || (_) \ V / (_| | |__| (_| \__ \ |_        |
+# |        \____\___|_| |_|\__\___/ \_/ \__,_|\____\__,_|___/\__|       |
+# |                                                                     |
+# | Copyright Alejandro Olivan 2016                 alex@alexolivan.com |
+# +---------------------------------------------------------------------+
+# | A Check_mk agent to monitor CentovaCast server panel on Linux       |
+# | This file contains the check definition / inventory code.           |
+# +---------------------------------------------------------------------+
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+# MA  02110-1301, USA.
+
+
+# Example output from agent:
+#<<<centovacast>>>
+#3.2.4
+#durangoirratia 100 -1 0 435 up up
+#marca_leon 100 -1 0 54486 up up
+#marca_valladolid 100 -1 0 158991 up up
+#radiolescala 100 -1 0 0 up up
+#radiomartorell 100 -1 0 10376 up up
+#radiooleiros 100 -1 0 12736 up up
+#segreradio 100 -1 0 0 up up
+#sermoradebre 100 -1 0 21333 up up
+#xorroxinirratia 100 -1 0 9612 up up
+#emartv 100 -1 0 862 up up
+#marcaasturias_web 100 -1 0 34528 up up
+#queradio 100 -1 0 26966 up up
+#rdi -1 -1 3762 9  
+#democodec2 100 -1 0 0 up up
+#democodec3 100 -1 0 0 up up
+#locutora_asesina 100 -1 20 0 up up
+#locutora_asesina_hd 100 -1 0 0 up up
+#apps4radio 100 -1 32 6 up up
+#democodec 100 -1 0 0 up up
+#locutora_asesina2 100 -1 20 0 up up
+#marcasat -1 -1 0 0 up up
+
+
+centovacast_agent_fields = (
+    'name',
+    'diskquota',
+    'transferlimit',
+    'diskusage',
+    'transferusage',
+    'current_state',
+    'expected_state'
+)
+
+factory_settings["centovacast_default_levels"] = {
+    "diskusage" : (80,90),
+    "transferusage" : (80,90)
+}
+
+
+def evaluate_centovacast_max_scalar_value(valuestr, maxstr, valuewarnstr, valuecritstr):
+    value = int(valuestr)
+    maxim = int(maxstr)
+    usage = int(value / float(maxim) * 100)
+    valuewarn = int(valuewarnstr)
+    valuecrit = int(valuecritstr)
+    if maxim < 0:
+        return 0
+    elif valuewarn != 0 or valuecrit != 0:
+        if usage > valuecrit:
+            return 2
+        elif usage > valuewarn:
+            return 1
+        else:
+            return 0
+    else:
+        return 0
+
+
+# +-------------------------------------------------------------------+
+# |                                    _                              |
+# |                __   _____ _ __ ___(_) ___  _ __                   |
+# |                \ \ / / _ \ '__/ __| |/ _ \| '_ \                  |
+# |                 \ V /  __/ |  \__ \ | (_) | | | |                 |
+# |                (_)_/ \___|_|  |___/_|\___/|_| |_|                 |
+# |                                                                   |
+# +-------------------------------------------------------------------+
+# | Check installed CentovaCast version.                              |
+# +-------------------------------------------------------------------+
+
+
+def inventory_centovacast_version(info):
+    if info:
+        return [(None, {})]
+
+
+def check_centovacast_version(item, params, info):	
+    if info:
+        return 0, "CentovaCast version: %s" % info[0][0]
+    else:
+        return 3, "UNKNOWN"
+
+
+check_info["centovacast.version"] = {
+    "check_function": check_centovacast_version,
+    "inventory_function": inventory_centovacast_version,
+    "service_description": "Centovacast Version",
+    "has_perfdata": False,
+}
+
+
+
+# +-------------------------------------------------------------------+
+# |                                   _ _                             |
+# |                _ __ ___  ___  ___| | | ___ _ __ ___               |
+# |               | '__/ _ \/ __|/ _ \ | |/ _ \ '__/ __|              |
+# |              _| | |  __/\__ \  __/ | |  __/ |  \__ \              |
+# |             (_)_|  \___||___/\___|_|_|\___|_|  |___/              |
+# |                                                                   |
+# +-------------------------------------------------------------------+
+# | Check CentovaCast reseller accounts.                              |
+# +-------------------------------------------------------------------+
+
+
+def inventory_centovacast_resellers(info):
+    if info:
+        for line in info:
+            if len(line) == 5:
+                yield line[0], {}
+
+
+def check_centovacast_resellers(item, params, info):	
+    if info:
+        for line in info:
+            if line[0] == item:
+                status = 0
+                perfdata = []
+                message = "Reseller account: %s " % item
+                for index, value in enumerate(line):
+                    if index == 0:
+                        continue
+                    if index == 3:
+                        maximum = line[1]
+                        warn, crit = params[centovacast_agent_fields[3]]
+                        result = evaluate_centovacast_max_scalar_value(value, maximum, warn, crit)
+                        if result > status:
+                            status = result
+                        perfdata.append((centovacast_agent_fields[0],value, warn, crit, 0, maximum))                       
+                    if index == 4:
+                        maximum = line[2]
+                        warn, crit = params[centovacast_agent_fields[4]]
+                        result = evaluate_centovacast_max_scalar_value(value, maximum, warn, crit)
+                        if result > status:
+                            status = result
+                        perfdata.append((centovacast_agent_fields[1],value, warn, crit, 0, maximum))
+                    message += ", %s: %s" % (centovacast_agent_fields[index], value)
+                return status, message, perfdata       	    
+
+
+check_info["centovacast.resellers"] = {
+    "check_function": check_centovacast_resellers,
+    "inventory_function": inventory_centovacast_resellers,
+    "service_description": "Centovacast Resellers",
+    'has_perfdata': True,
+    "group": "centovacast_resellers",
+    "default_levels_variable": "centovacast_default_levels",
+}
+
+# +-------------------------------------------------------------------+
+# |                                             _                     |
+# |              __ _  ___ ___ ___  _   _ _ __ | |_ ___               |
+# |             / _` |/ __/ __/ _ \| | | | '_ \| __/ __|              |
+# |            | (_| | (_| (_| (_) | |_| | | | | |_\__ \              |
+# |           (_)__,_|\___\___\___/ \__,_|_| |_|\__|___/              |
+# |                                                                   |
+# +-------------------------------------------------------------------+
+# | Check CentovaCast server accounts.                                |
+# +-------------------------------------------------------------------+
+
+
+def inventory_centovacast_accounts(info):
+    if info:
+        for line in info:
+            if len(line) > 5:
+                yield line[0], {}
+
+
+def check_centovacast_accounts(item, params, info):	
+    if info:
+        for line in info:
+            if line[0] == item:
+                status = 0
+                perfdata = []
+                message = "Server account: %s " % item
+                for index, value in enumerate(line):
+                    if index == 0:
+                        continue
+                    if index == 3:
+                        maximum = line[1]
+                        warn, crit = params[centovacast_agent_fields[3]]
+                        result = evaluate_centovacast_max_scalar_value(value, maximum, warn, crit)
+                        if result > status:
+                            status = result
+                        perfdata.append((centovacast_agent_fields[0],value, warn, crit, 0, maximum))                       
+                    if index == 4:
+                        maximum = line[2]
+                        warn, crit = params[centovacast_agent_fields[4]]
+                        result = evaluate_centovacast_max_scalar_value(value, maximum, warn, crit)
+                        if result > status:
+                            status = result
+                        perfdata.append((centovacast_agent_fields[1],value, warn, crit, 0, maximum))
+                    if index == 5:
+                        if value != line[6]:
+                            status = 2               	    
+                    message += ", %s: %s" % (centovacast_agent_fields[index], value)
+                return status, message, perfdata       	    
+
+
+check_info["centovacast.accounts"] = {
+    "check_function": check_centovacast_accounts,
+    "inventory_function": inventory_centovacast_accounts,
+    "service_description": "Centovacast accounts",
+    'has_perfdata': True,
+    "group": "centovacast_accounts",
+    "default_levels_variable": "centovacast_default_levels",
+}
