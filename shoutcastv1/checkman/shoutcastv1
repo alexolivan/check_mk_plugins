@@ -45,10 +45,10 @@ item:
  Every local server generates an item wich is identified by its listening port.
 
 examples:
- shoutcastv1_default_levels[1] = (1, 0)
- shoutcastv1_default_levels[2] = (1, 1)
- shoutcastv1_default_levels[3] = (90, 95)
- shoutcastv1_default_levels[4] = (450, 700)
+ shoutcastv1_default_levels[0] = (1, 0)
+ shoutcastv1_default_levels[1] = (1, 1)
+ shoutcastv1_default_levels[2] = (90, 95)
+ shoutcastv1_default_levels[3] = (450, 700)
 
 perfdata:
  All items generate value, warn, crit perfdata list of tuples for every
@@ -61,13 +61,13 @@ inventory:
  it yields items with shoutcastv1_default_levels full list
 
 [parameters]
- Parameters are common in al module via the list of tupples
+ Parameters are common in all module via the list of tupples
  shoutcastv1_default_levels
 
- 'currentlisteners' -> shoutcastv1_default_levels[1]
- 'status' -> shoutcastv1_default_levels[2]
- 'peaklisteners' -> shoutcastv1_default_levels[3]
- 'uniquelisteners' -> shoutcastv1_default_levels[4]
+ 'currentlisteners' -> shoutcastv1_default_levels[0]
+ 'status' -> shoutcastv1_default_levels[1]
+ 'peaklisteners' -> shoutcastv1_default_levels[2]
+ 'uniquelisteners' -> shoutcastv1_default_levels[3]
 
 [configuration]
  no configuration needed.

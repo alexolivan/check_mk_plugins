@@ -32,7 +32,7 @@ description:
    "unassigned_shards" : 0
  }
 
- That is simplefied by agent to a set of plain text key value lines like this:
+ That is simplified by agent to a set of plain text key value lines like this:
  <<<elasticsearch>>>
  cluster_name  MyFunnyCluster
  status  green

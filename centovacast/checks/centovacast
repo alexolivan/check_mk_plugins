@@ -32,27 +32,21 @@
 # Example output from agent:
 #<<<centovacast>>>
 #3.2.4
-#durangoirratia 100 -1 0 435 up up
-#marca_leon 100 -1 0 54486 up up
-#marca_valladolid 100 -1 0 158991 up up
-#radiolescala 100 -1 0 0 up up
-#radiomartorell 100 -1 0 10376 up up
-#radiooleiros 100 -1 0 12736 up up
-#segreradio 100 -1 0 0 up up
-#sermoradebre 100 -1 0 21333 up up
-#xorroxinirratia 100 -1 0 9612 up up
-#emartv 100 -1 0 862 up up
-#marcaasturias_web 100 -1 0 34528 up up
-#queradio 100 -1 0 26966 up up
-#rdi -1 -1 3762 9  
-#democodec2 100 -1 0 0 up up
-#democodec3 100 -1 0 0 up up
-#locutora_asesina 100 -1 20 0 up up
-#locutora_asesina_hd 100 -1 0 0 up up
-#apps4radio 100 -1 32 6 up up
-#democodec 100 -1 0 0 up up
-#locutora_asesina2 100 -1 20 0 up up
-#marcasat -1 -1 0 0 up up
+#radiostation1 100 -1 0 435 up up
+#radiostation2 100 -1 0 54486 up up
+#radiostation3 100 -1 0 158991 up up
+#radiostation4 100 -1 0 0 up up
+#radiostation5 100 -1 0 10376 up up
+#radiostation6 100 -1 0 12736 up up
+#radiostation7 100 -1 0 0 up up
+#radiostation8 100 -1 0 21333 up up
+#radiostation9 100 -1 0 9612 up up
+#ACME-Inc 100 -1 0 862 up up
+#acme-radio1 100 -1 0 34528 up up
+#acme-radio2 100 -1 0 26966 up up
+#NRA4Ever -1 -1 3762 9  
+#nra-radio1 100 -1 0 0 up up
+#nra-radio2 100 -1 0 0 up up
 
 
 centovacast_agent_fields = (
@@ -158,14 +152,14 @@ def check_centovacast_resellers(item, params, info):
                         result = evaluate_centovacast_max_scalar_value(value, maximum, warn, crit)
                         if result > status:
                             status = result
-                        perfdata.append((centovacast_agent_fields[0],value, warn, crit, 0, maximum))                       
+                        perfdata.append((centovacast_agent_fields[1],value, warn, crit, 0, maximum))                       
                     if index == 4:
                         maximum = line[2]
                         warn, crit = params[centovacast_agent_fields[4]]
                         result = evaluate_centovacast_max_scalar_value(value, maximum, warn, crit)
                         if result > status:
                             status = result
-                        perfdata.append((centovacast_agent_fields[1],value, warn, crit, 0, maximum))
+                        perfdata.append((centovacast_agent_fields[2],value, warn, crit, 0, maximum))
                     message += ", %s: %s" % (centovacast_agent_fields[index], value)
                 return status, message, perfdata       	    
 
@@ -214,14 +208,14 @@ def check_centovacast_accounts(item, params, info):
                         result = evaluate_centovacast_max_scalar_value(value, maximum, warn, crit)
                         if result > status:
                             status = result
-                        perfdata.append((centovacast_agent_fields[0],value, warn, crit, 0, maximum))                       
+                        perfdata.append((centovacast_agent_fields[1],value, warn, crit, 0, maximum))                       
                     if index == 4:
                         maximum = line[2]
                         warn, crit = params[centovacast_agent_fields[4]]
                         result = evaluate_centovacast_max_scalar_value(value, maximum, warn, crit)
                         if result > status:
                             status = result
-                        perfdata.append((centovacast_agent_fields[1],value, warn, crit, 0, maximum))
+                        perfdata.append((centovacast_agent_fields[2],value, warn, crit, 0, maximum))
                     if index == 5:
                         if value != line[6]:
                             status = 2               	    

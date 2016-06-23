@@ -6,7 +6,7 @@
            'checks': ['elasticsearch'],
            'doc': [],
            'pnp-templates': [],
-           'web': ['plugins/wato/elasticsearch', 'plugins/perfometer/elasticsearch.py']},
+           'web': ['plugins/wato/elasticsearch.py', 'plugins/perfometer/elasticsearch.py']},
  'name': 'elasticsearch',
  'num_files': 5,
  'title': 'elasticsearch plugin',

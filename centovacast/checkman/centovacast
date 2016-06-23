@@ -1,0 +1,145 @@
+title: centovacast
+agents: linux (just tested on Debian Linux)
+catalog: "app","Applications"
+license: GPL
+distribution:
+
+description:
+ This plugin is intended check usage and stats of Streaming Host panel
+ CentovaCast.
+ It has been tested with CentovaCast version 3.2.4.
+ The plugin includes 3 subplugins: .version, .resellers and .accounts
+ to process separately different agent output line types that 
+ correspond to version, streaming server accounts and reseller 
+ accounts.
+
+ The plugin is based on CentovaCast cli tools.
+ In order to work, the CentovaCast 'sumanage' command (super user, 
+ passwordless version of 'ccmanage' command) has to be setup 
+ in the server.
+
+ The agent executes first a version check and outputs it by executing
+ 'sumanage' as follows:
+ sumanage version --outputmode=csv | tail -n +2 | head -n -1 | sed -e 's/,/ /g' | awk '{print $1}'
+
+ Then a list of all acounts is gathered as follows:
+ sumanage usage all --outputmode=csv | sed -e 's/,/ /g' | awk '{print $1}' | tail -n +2 | head -n -1
+
+ Then, a loop is executed getting usage on info on every account as follows:
+ usage -> sumanage usage $line --outputmode=csv | tail -n +2 | head -n -1 | sed -e 's/,/ /g'
+ info -> info $line --outputmode=csv | tail -n +2 | head -n -1 | sed -e 's/,/ /g' | awk '{print $2, $3}'
+
+ The resulting outputs are concatenated as a single output line.
+ And, so, here is a sample of final agent output:
+
+ <<<centovacast>>>
+ 3.2.4
+ radiostation1 100 -1 0 435 up up
+ radiostation2 100 -1 0 54486 up up
+ radiostation3 100 -1 0 158991 up up
+ radiostation4 100 -1 0 0 up up
+ radiostation5 100 -1 0 10376 up up
+ radiostation6 100 -1 0 12736 up up
+ radiostation7 100 -1 0 0 up up
+ radiostation8 100 -1 0 21333 up up
+ radiostation9 100 -1 0 9612 up up
+ ACME-Inc 100 -1 0 862 up up
+ acme-radio1 100 -1 0 34528 up up
+ acme-radio2 100 -1 0 26966 up up
+ NRA4Ever -1 -1 3762 9  
+ nra-radio1 100 -1 0 0 up up
+ nra-radio2 100 -1 0 0 up up
+
+
+
+title: centovacast.version
+description:
+ This check checks current CentovaCast version
+
+item:
+ Single None item.
+
+examples:
+ no configuration needed.
+
+perfdata:
+ no perfdta is generated.
+
+inventory:
+ In the presence of info, a single None item is 
+ returned
+
+ [parameters]
+ no parameters needed.
+
+ [configuration]
+ no configuration needed.
+
+
+title: centovacast.resellers
+description:
+ This check gets usage report of CentovaCast reseller accounts.
+
+item:
+ Items are generated from a reseller name basis.
+ Every resellera account generates an item wich is identified by its name.
+
+examples:
+ centovacast_default_levels[0] = (50, 75)
+ centovacast_default_levels[1] = (90, 95)
+
+perfdata:
+ All items generate value, warn, crit perfdata list of tuples for every
+ distinct parameter.
+ default values differ from concept to concept.
+
+inventory:
+ inventory function specifically catches column values from
+ agent output (port) to generate items.
+ it yields items with centovacast_default_levels full list
+
+[parameters]
+ Parameters are common in all module via the list of tupples
+ centovacast_default_levels
+
+ 'diskusage' -> centovacast_default_levels[0]
+ 'transferusage' -> centovacast_default_levels[1]
+
+[configuration]
+ no configuration needed.
+ Can be configured via WATO.
+
+
+
+title: centovacast.accounts
+description:
+ This check gets usage report of CentovaCast server accounts.
+
+item:
+ Items are generated from a server name basis.
+ Every server account generates an item wich is identified by its name.
+
+examples:
+ centovacast_default_levels[0] = (50, 75)
+ centovacast_default_levels[1] = (90, 95)
+
+perfdata:
+ All items generate value, warn, crit perfdata list of tuples for every
+ distinct parameter.
+ default values differ from concept to concept.
+
+inventory:
+ inventory function specifically catches column values from
+ agent output (port) to generate items.
+ it yields items with centovacast_default_levels full list
+
+[parameters]
+ Parameters are common in all module via the list of tupples
+ centovacast_default_levels
+
+ 'diskusage' -> centovacast_default_levels[0]
+ 'transferusage' -> centovacast_default_levels[1]
+
+[configuration]
+ no configuration needed.
+ Can be configured via WATO.
