@@ -148,8 +148,9 @@ register_check_parameters(
             ),
        ]
    ),
-   None,
-   "dict",
+   TextAscii( title=_("PROXMOX PVE Cluster limits"),
+   help=_("Leave blank to apply limits to all clusters, or specify an specicfic cluster to set limit values only to it.")),
+   "first"
 )
 
 register_check_parameters(
@@ -268,6 +269,7 @@ register_check_parameters(
             ),            
        ]
    ),
-   None,
-   "dict",
+   TextAscii( title=_("PROXMOX PVE Node limits"),
+   help=_("Leave blank to apply limits to all PVE nodes, or specify an specicfic node to set limit values only to it.")),
+   "first"
 ) 

@@ -106,6 +106,7 @@ register_check_parameters(
             )
         ]
    ),
-   None,
-   "dict"
+   TextAscii( title=_("Icecast2 server instance limits"),
+   help=_("Leave blank to apply limits to all servers, or specify an specicfic server listen PORT to set limit values only to it.")),
+   "first"
 ) 

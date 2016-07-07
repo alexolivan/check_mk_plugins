@@ -59,8 +59,9 @@ register_check_parameters(
             ),
         ]
    ),
-   None,
-   "dict",
+   TextAscii( title=_("Logstash instance Connections limits"),
+   help=_("Leave blank to apply limits to all logstash instances, or specify an specicfic instance  to set limit values only to it.")),
+   "first"
 )
 
 register_check_parameters(
@@ -143,8 +144,9 @@ register_check_parameters(
             ),
         ]
    ),
-   None,
-   "dict",
+   TextAscii( title=_("Logstash instance Memory limits"),
+   help=_("Leave blank to apply limits to all resellers, or specify an specicfic reseller to set limit values only to it.")),
+   "first"
 )
 
 register_check_parameters(
@@ -173,6 +175,7 @@ register_check_parameters(
             ),
         ]
    ),
-   None,
-   "dict",
+   TextAscii( title=_("Logstash instance CPU limits"),
+   help=_("Leave blank to apply limits to all instances, or specify an specicfic instance to set limit values only to it.")),
+   "first"
 )

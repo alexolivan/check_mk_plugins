@@ -110,6 +110,7 @@ register_check_parameters(
             )
         ]
    ),
-   None,
-   "dict"
+   TextAscii( title=_("SHOUTCast 1.9.8 server limits"),
+   help=_("Leave blank to apply limits to all servers, or specify an specicfic server PORT to set limit values only to it.")),
+   "first"
 )        

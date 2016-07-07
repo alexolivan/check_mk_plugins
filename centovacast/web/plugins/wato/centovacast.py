@@ -76,8 +76,9 @@ register_check_parameters(
             ),
         ]
    ),
-   None,
-   "dict"
+   TextAscii( title=_("Reseller account limits"),
+   help=_("Leave blank to apply limits to all resellers, or specify an specicfic reseller to set limit values only to it.")),
+   "first"
 )
 
 register_check_parameters(
@@ -124,6 +125,7 @@ register_check_parameters(
             ),
         ]
    ),
-   None,
-   "dict"
+   TextAscii( title=_("Server account limits"),
+   help=_("Leave blank to apply limits to all servers, or specify an specicfic server to set limit values only to it.")),
+   "first"
 )
