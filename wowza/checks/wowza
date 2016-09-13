@@ -1,0 +1,102 @@
+#!/usr/bin/python
+# -*- encoding: utf-8; py-indent-offset: 4 -*-
+# +---------------------------------------------------------------------+
+# |       __        __                          ____  _____             |
+# |       \ \      / /____      ________ _     / ___|| ____|            |
+# |        \ \ /\ / / _ \ \ /\ / /_  / _` |____\___ \|  _|              |
+# |         \ V  V / (_) \ V  V / / / (_| |_____|__) | |___             |
+# |          \_/\_/ \___/ \_/\_/ /___\__,_|    |____/|_____|            |
+# |                                                                     |
+# | Copyright Alejandro Olivan 2016                 alex@alexolivan.com |
+# +---------------------------------------------------------------------+
+# | A Check_mk agent to monitor Wowza Stream Engine servers on Linux    |
+# | This file contains the check definition / inventory code.           |
+# +---------------------------------------------------------------------+
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, 
+# MA  02110-1301, USA.
+
+# Example output from agent:
+# _defaultVHost_ 0 0 17 15 2
+# ExampleVhost1 0 0 6768 6702 66
+# ExampleVHost2 0 19 156579 153958 2621
+# Demo 0 0 0 0 0
+
+
+wowza_agent_fields = (
+    'name',
+    'connections_limit',
+    'connections_current',
+    'connections_total',
+    'connections_total_accepted',
+    'connections_total_rejected'
+)
+
+factory_settings["wowza_default_levels"] = {
+    "connections_current" : (80,90),
+    "connections_concurrency_limit" : 500
+}
+
+
+def evaluate_wowza_max_scalar_value(valuestr, maxstr, valuewarnstr, valuecritstr):
+    value = int(valuestr)
+    maxim = int(maxstr)
+    usage = int(value / float(maxim) * 100)
+    valuewarn = int(valuewarnstr)
+    valuecrit = int(valuecritstr)
+    if valuewarn != 0 or valuecrit != 0:
+        if usage > valuecrit:
+            return 2
+        elif usage > valuewarn:
+            return 1
+        else:
+            return 0
+    else:
+        return 0
+
+
+def inventory_wowza(info):
+    for line in info:
+        yield line[0], {}
+
+
+def check_wowza(item, params, info):
+    for line in info:
+        if line[0] == item:
+            status = 0
+            perfdata = []
+            message = "Wowza Streaming Engine, VHost: %s " % item
+            for index, value in enumerate(line):
+                if index == 0:
+                    continue    	    	
+                if index == 2:
+                    warn, crit = params[wowza_agent_fields[2]]
+                    maximum = params["connections_concurrency_limit"]
+                    result = evaluate_wowza_max_scalar_value(value, maximum, warn, crit)
+                    if result > status:
+                        status = result
+                    perfdata.append((wowza_agent_fields[2],line[2], warn, crit, 0, maximum))                    
+                message += ", %s: %s" % (wowza_agent_fields[index], value)
+            return status, message, perfdata
+
+
+check_info["wowza"] = {
+    'check_function': check_wowza,
+    'inventory_function': inventory_wowza,
+    'service_description': 'Wowza Streaming Engine',
+    'has_perfdata': True,
+    "group": "wowza",
+    "default_levels_variable": "wowza_default_levels",    
+}
