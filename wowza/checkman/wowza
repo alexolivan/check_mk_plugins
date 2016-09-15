@@ -1,0 +1,66 @@
+title: wowza
+agents: linux (just tested on Debian Linux)
+catalog: "app","Applications"
+license: GPL
+distribution:
+
+description:
+ This plugin is intended to monitor the status of configured 
+ VHosts of SWowza Stream Engine streaming servers in the
+ local machine.
+
+ The agent binds to the serverstats XML server listening at
+ 8086 port on a Wowza Stream Engine running instance.
+ It needs authorization, so IT NEEDS TO BE CONFIGURED by 
+ entering appropriate host, user an password.
+ It wgets and updates an XML file in tmp storage containing
+ recent server status.
+
+ It uses a separate python script to parse the XML:
+ wowza_xml_parser.py
+ Ensure this script is present on the agent plugin folder.
+ It is possible to have the script elsewhere and update the 
+ agent PARSER variable path wit the correct path to it.
+
+ Every correctly fetched configured VHOST is added to the
+ agent output and will generate a item on check_mk plugin.
+
+
+ Example output from agent:
+ _defaultVHost_ 0 0 17 15 2
+ ExampleVhost1 0 0 6768 6702 66
+ ExampleVHost2 0 19 156579 153958 2621
+ Demo 0 0 0 0 0
+
+title: wowza
+description:
+ This check gets usage report per WowzaStream Engine VHost.
+
+item:
+ Items are generated from a VHost basis.
+ Every VHost generates an item wich is identified by its name.
+
+examples:
+ wowza_default_levels[0] = (50, 75)
+ wowza_default_levels[1] = 1000
+
+perfdata:
+ All items generate value, warn, crit perfdata list of tuples for every
+ distinct parameter.
+ default values differ from concept to concept.
+
+inventory:
+ inventory function specifically catches column values from
+ agent output (VHost) to generate items.
+ it yields items with wowza_default_levels full list
+
+[parameters]
+ Parameters are common in all module via the list of tupples
+ wowza_default_levels
+
+ 'cconnections_current' -> wowza_default_levels[0]
+ 'connections_concurrency_limit' -> wowza_default_levels[1]
+
+[configuration]
+ no configuration needed.
+ Can be configured via WATO.

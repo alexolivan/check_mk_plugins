@@ -17,3 +17,4 @@ The main flaw is that for that reason, the plugins are meant to run on linux, an
 - SHOUTCast DNAS 2.x
 - Icecast2 (Only newer than 2.4.1 with json xsl stats enabled)
 - Centovacast (tested with CentovaCast 3.2.x)
+- WowzaStreamEngine (tested with 4.3.0 VHosts)
