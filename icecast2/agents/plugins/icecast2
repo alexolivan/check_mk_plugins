@@ -57,7 +57,7 @@ do
     RESULT=`curl http://${LISTENIP}:${PORT}/status-json.xsl -A Mozilla/4.0 -s -I | grep Icecast`
     if [[ ! $(tr -d "\r\n" <<< $RESULT | wc -c) -eq 0 ]]; then
         RESULT=`curl http://${LISTENIP}:${PORT}/status-json.xsl -A Mozilla/4.0 -s`
-        TARGETPROP='audio_info'
+        TARGETPROP='listener_peak'
         STREAMSTATUS=`jsonval`
         if [ -z "${STREAMSTATUS}" ]; then
             STREAMSTATUS=0

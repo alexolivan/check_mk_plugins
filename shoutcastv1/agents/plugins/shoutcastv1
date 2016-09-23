@@ -48,9 +48,14 @@ do
     LISTENIP=`netstat -tnl | grep ${PORT} | awk '{print $4}' | cut -d ":" -f 1`
     if [ $LISTENIP == "0.0.0.0" ]; then
         LISTENIP="127.0.0.1"
-    fi    
-    RESULT=`curl http://${LISTENIP}:${PORT}/7.html -A Mozilla/4.0 -s | sed 's/[^0-9,]//g' | sed 's/,/ /g' | awk '{print $1, $2, $3, $4, $5}'`
-    if [[ ! $(tr -d "\r\n" <<< $RESULT | wc -c) -eq 0 ]] && [[ $(tr -d "\r\n" <<< $RESULT | wc -w) -eq 5 ]]; then
-        echo "${PORT} ${RESULT}"
+    fi
+    
+    RESULT=`curl http://${LISTENIP}:${PORT}/stats?sid=1 -A Mozilla/4.0 -s | grep SHOUTcast`
+    if [[ ! $(tr -d "\r\n" <<< $RESULT | wc -c) -eq 0 ]]; then
+
+        RESULT=`curl http://${LISTENIP}:${PORT}/7.html -A Mozilla/4.0 -s | sed 's/[^0-9,]//g' | sed 's/,/ /g' | awk '{print $1, $2, $3, $4, $5}'`
+        if [[ ! $(tr -d "\r\n" <<< $RESULT | wc -c) -eq 0 ]] && [[ $(tr -d "\r\n" <<< $RESULT | wc -w) -eq 5 ]]; then
+            echo "${PORT} ${RESULT}"
+        fi
     fi
 done
