@@ -73,6 +73,7 @@
 #latest_fork_usec 116
 #vm_enabled 0
 #role master
+#uptime 9834973577
 
 redis_agent_fields = (
 	(
@@ -322,28 +323,27 @@ def check_redis_cpu(item, params, info):
         params = { item : params }
     cpuwarn, cpucrit = params[item]
 
-    import multiprocessing
-    cpucount = multiprocessing.cpu_count()    
 
     data = redis_parse(info)    
+    proc_seconds = float(data["uptime"])
     if item == redis_agent_fields[3][0]:
         cpu = int(data[item])
         message = "LRU Clock: %d"
         return evaluate_scalar_value(item, cpu, cpuwarn, cpucrit, message)
     elif item == redis_agent_fields[3][1]:
-        cpu = float(data[item]) / cpucount
+        cpu = float(data[item]) / proc_seconds * 100
         message = "Used CPU system %s"
         return evaluate_percent_value(item, cpu, cpuwarn, cpucrit, message)
     elif item == redis_agent_fields[3][2]:
-        cpu = float(data[item]) / cpucount
+        cpu = float(data[item]) / proc_seconds * 100
         message = "Used CPU user %s"
         return evaluate_percent_value(item, cpu, cpuwarn, cpucrit, message)
     elif item == redis_agent_fields[3][3]:
-        cpu = float(data[item]) / cpucount
+        cpu = float(data[item]) / proc_seconds * 100
         message = "Children Used CPU system %s"
         return evaluate_percent_value(item, cpu, cpuwarn, cpucrit, message)
     elif item == redis_agent_fields[3][4]:
-        cpu = float(data[item]) / cpucount
+        cpu = float(data[item]) / proc_seconds * 100
         message = "Children Used CPU user %s"
         return evaluate_percent_value(item, cpu, cpuwarn, cpucrit, message)        
     else:

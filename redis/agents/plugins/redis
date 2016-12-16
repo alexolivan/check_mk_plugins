@@ -34,7 +34,10 @@ PORT=6379
 echo '<<<redis>>>'
 LISTENIP=`netstat -tlnp | grep ${PORT} | awk '{print $4}' | cut -f1 -d":"`
 if hash redis-cli 2>/dev/null; then
-        if [ ! -z "${LISTENIP}" ]; then
-                redis-cli -h ${LISTENIP} -p ${PORT} info | sed -e 's/:/ /g'
-        fi
+    if [ ! -z "${LISTENIP}" ]; then
+        redis-cli -h ${LISTENIP} -p ${PORT} info | sed -e 's/:/ /g'
+        echo ""
+        echo "# System"
+        echo "uptime `cat /proc/uptime | awk '{print $1}'`"
+    fi
 fi
