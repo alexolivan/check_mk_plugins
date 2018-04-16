@@ -1,0 +1,18 @@
+#!/bin/bash
+
+BASEDIR="/etc/openvpn/server/"
+SEARCHDIR="/etc/openvpn/server/*/"
+LOG="/status.log"
+
+echo "<<<openvpn>>>"
+for dir in ${SEARCHDIR}
+do
+    dir=${dir%*/}
+    file=$BASEDIR${dir##*/}$LOG
+    if [ -s "$file" ]; then
+	read -r firstline < $file
+	if [[ $firstline != *"STATISTICS"*   ]]; then
+            tail -n +4 $file | sed '/ROUTING/,$d'  | sed "s/^/${dir##*/},/"
+        fi
+    fi
+done

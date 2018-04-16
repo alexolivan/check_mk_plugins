@@ -59,5 +59,5 @@ register_check_parameters(
    ),
    TextAscii( title=_("Wowza Stream Engine VHosts usage."),
    help=_("Leave blank to apply limits to all VHosts, or specify an specicfic server VHost to set limit values only to it.")),
-   "first"
+   "dict"
 ) 

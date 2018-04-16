@@ -7,7 +7,7 @@
 # |    |_|   |_| \_\\___/_/\_\_|  |_|\___/_/\_\    | .__/ \_/ \___|     |
 # |                                                |_|                  |
 # |                                                                     |
-# | Copyright Alejandro Olivan 2016                 alex@alexolivan.com |
+# | Copyright Alejandro Olivan 2017                 alex@alexolivan.com |
 # +---------------------------------------------------------------------+
 # | A Check_mk agent to monitor PROXMOX PVE Hypervisor systems          |
 # | This file contains plugin agent definition.                         |
@@ -36,7 +36,7 @@ pveversion -v | sed -e 's/:/ /g' | awk '{print $1, $2}'
 
 # Get PROXMOX Cluster info and status
 echo "cluster-status:"
-pvecm status | sed 's/: */_/g' | sed -r 's/\s+/-/' | sed 's/_/ /g' | sed 's/-$//'
+pvecm status | sed 's/: */_/g' | sed -r 's/\s+/-/' | sed 's/_/ /g' | sed 's/-$//' | cut -d' ' -f1-2 | awk 'NF>=2'
 
 
 # Count locally runing VMs and Containers
@@ -55,3 +55,4 @@ STOPPEDLXCS=`lxc-ls -f 2>/dev/null | grep "STOPPED" | wc -l`
 echo "stopped-lxcs ${STOPPEDLXCS}"
 RUNNINGLXCS=`lxc-ls -f 2>/dev/null | grep "RUNNING" | wc -l`
 echo "running-lxcs ${RUNNINGLXCS}"
+

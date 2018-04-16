@@ -131,7 +131,7 @@ register_check_parameters(
    ),
    TextAscii( title=_("Redis server CPU limits"),
    help=_("Leave blank to apply limits to all redis servers, or specify an specicfic server to set limit values only to it.")),
-   "first"
+   "dict"
 )
 
 register_check_parameters(
@@ -216,7 +216,7 @@ register_check_parameters(
    ),
    TextAscii( title=_("Redis server memory limits"),
    help=_("Leave blank to apply limits to all servers, or specify an specicfic server to set limit values only to it.")),
-   "first"
+   "dict"
 )
 
 register_check_parameters(
@@ -351,7 +351,7 @@ register_check_parameters(
    ),
    TextAscii( title=_("Redis server connection limits"),
    help=_("Leave blank to apply limits to all servers, or specify an specicfic server to set limit values only to it.")),
-   "first"
+   "dict"
 )
 
 
@@ -437,5 +437,5 @@ register_check_parameters(
    ),
    TextAscii( title=_("Redis server keys limits"),
    help=_("Leave blank to apply limits to all servers, or specify an specicfic server to set limit values only to it.")),
-   "first"
+   "dict"
 )
