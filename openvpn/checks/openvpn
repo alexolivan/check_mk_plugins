@@ -1,0 +1,194 @@
+#!/usr/bin/python
+# -*- encoding: utf-8; py-indent-offset: 4 -*-
+# +---------------------------------------------------------------------+
+# |     ___                __     ______  _   _                         |
+# |    / _ \ _ __   ___ _ _\ \   / /  _ \| \ | |                        |
+# |   | | | | '_ \ / _ \ '_ \ \ / /| |_) |  \| |                        |
+# |   | |_| | |_) |  __/ | | \ V / |  __/| |\  |                        |
+# |    \___/| .__/ \___|_| |_|\_/  |_|   |_| \_|                        |
+# |         |_|                                                         |
+# |                                                                     |
+# | Copyright Alejandro Olivan 2018                 alex@alexolivan.com |
+# +---------------------------------------------------------------------+
+# | A Check_mk agent to monitor OpenVPN Remote Access servers on Linux  |
+# | This file contains the check definition / inventory code.           |
+# +---------------------------------------------------------------------+
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+# MA  02110-1301, USA.
+
+# Example output from agent:
+#<<<openvpn>>>
+#2.4.0
+#serverA,client1,46.24.18.103:19795,10814332,5517251,Mon Apr 16 07:13:33 2018
+#serverA,client2,62.43.200.180:35351,75029340,38689459,Sun Apr 15 13:18:21 2018
+#serverA,client3,95.60.178.20:33956,45636,18904,Mon Apr 16 10:18:09 2018
+#serverB,client1,80.28.102.18:56464,336119549,174128121,Thu Apr 12 08:41:40 2018
+#serverB,client2,195.53.85.162:49495,131404883,75889318,Fri Apr 13 10:36:44 2018
+#serverB,client3,79.98.220.14:56036,790938696,416160717,Wed Apr  4 14:24:59 2018
+
+
+import datetime
+
+
+openvpn_agent_fields = (
+    'Server',
+    'Common_name',
+    'Real_address',
+    'Bytes_received',
+    'Bytes_sent',
+    'Connected_since'
+)
+
+
+def days_from_timestamp(timestamp):
+    thenstr = timestamp.replace("__", "_0")
+    thenstr = thenstr.replace("_", " ")
+    then = datetime.datetime.strptime(thenstr, "%c")
+    now = datetime.datetime.now()
+    tdelta = now - then
+    return tdelta.days
+
+
+# +-------------------------------------------------------------------+
+# |                                    _                              |
+# |                __   _____ _ __ ___(_) ___  _ __                   |
+# |                \ \ / / _ \ '__/ __| |/ _ \| '_ \                  |
+# |                 \ V /  __/ |  \__ \ | (_) | | | |                 |
+# |                (_)_/ \___|_|  |___/_|\___/|_| |_|                 |
+# |                                                                   |
+# +-------------------------------------------------------------------+
+# | Check installed OpenVPN version.                                  |
+# +-------------------------------------------------------------------+
+
+
+def inventory_openvpn_version(info):
+    if info:
+        return [(None, {})]
+
+
+def check_openvpn_version(item, params, info):
+    if info:
+        return 0, "OpenVPN version: %s" % info[0][0]
+    else:
+        return 3, "UNKNOWN"
+
+
+check_info["openvpn.version"] = {
+    "check_function": check_openvpn_version,
+    "inventory_function": inventory_openvpn_version,
+    "service_description": "OpenVPN Version",
+    "has_perfdata": False,
+}
+
+
+# +-------------------------------------------------------------------+
+# |                ___  ___ _ ____   _____ _ __ ___                   |
+# |               / __|/ _ \ '__\ \ / / _ \ '__/ __|                  |
+# |               \__ \  __/ |   \ V /  __/ |  \__ \                  |
+# |               |___/\___|_|    \_/ \___|_|  |___/                  |
+# |                                                                   |
+# +-------------------------------------------------------------------+
+# | Check OpenVPN server instances and count connections.             |
+# +-------------------------------------------------------------------+
+
+def inventory_openvpn_servers(info):
+    if info:
+        curServer = ""
+        for line in info:
+            if len(line) > 1:
+                if curServer != line[0]:
+                    curServer = line[0]
+                    yield line[0], {}
+
+
+def check_openvpn_clientcount(item, params, info):
+    if info:
+        clients = 0
+        for line in info:
+            if len(line) > 1:
+                if line[0] == item:
+                    clients += 1
+        if clients == 0:
+            status = 1
+        elif clients > 0:
+            status = 0
+        else:
+            status = 3
+        message = "Server instance: %s " % item
+        return status, message
+
+
+check_info["openvpn.servers"] = {
+    "check_function": check_openvpn_clientcount,
+    "inventory_function": inventory_openvpn_servers,
+    "service_description": "OpenVPN server instance",
+    'has_perfdata': False,
+    "group": "openvpn_servers"
+}
+
+
+# +-------------------------------------------------------------------+
+# |                       _ _            _                            |
+# |                   ___| (_) ___ _ __ | |_ ___                      |
+# |                  / __| | |/ _ \ '_ \| __/ __|                     |
+# |                 | (__| | |  __/ | | | |_\__ \                     |
+# |                  \___|_|_|\___|_| |_|\__|___/                     |
+# |                                                                   |
+# +-------------------------------------------------------------------+
+# | Get detailed info on client connections.                          |
+# +-------------------------------------------------------------------+
+
+def inventory_openvpn_clients(info):
+    if info:
+        for line in info:
+            if len(line) > 1:
+                yield line[1], {}
+
+
+def check_openvpn_clientdetails(item, params, info):
+    if info:
+        for line in info:
+            if len(line) > 1:
+                if line[1] == item:
+                    status = 0
+                    perfdata = []
+                    message = "Common_name: %s" % item
+                    for index, value in enumerate(line):
+                        if index == 0:
+                            message += ", %s: %s" % (openvpn_agent_fields[index], value)
+                        if index == 1:
+                            continue
+                        if index == 2:
+                        message += ", %s: %s" % (openvpn_agent_fields[index], value)
+                        if index == 3:
+                       message += ", %s: %s" % (openvpn_agent_fields[index], value)
+                       perfdata.append((openvpn_agent_fields[index],value, "", "", 0, ""))
+                        if index == 4:
+                       message += ", %s: %s" % (openvpn_agent_fields[index], value)
+                       perfdata.append((openvpn_agent_fields[index],value, "", "", 0, ""))
+                        if index == 5:
+                       message += ", %s: %s" % (openvpn_agent_fields[index], value)
+                       perfdata.append((openvpn_agent_fields[index],days_from_timestamp(value), "", "", 0, ""))
+                return status, message, perfdata
+
+
+check_info["openvpn.clients"] = {
+    "check_function": check_openvpn_clientdetails,
+    "inventory_function": inventory_openvpn_clients,
+    "service_description": "OpenVPN client connection details",
+    'has_perfdata': True,
+    "group": "openvpn_clients"
+}

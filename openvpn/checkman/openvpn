@@ -1,0 +1,135 @@
+title: openvpn
+agents: linux (just tested on Debian Linux)
+catalog: "app","Applications"
+license: GPL
+distribution:
+
+description:
+ This plugin is intended check one or more OpenVPN server instances 
+ configured as remote-access servers.
+ It has been tested with OpenVPN version 2.4.0 on Debian Stretch
+
+ The plugin includes 3 subplugins: .version, .servers and .clients
+ They process separately different agent output line types, that 
+ correspond to version, active OpenVPN server instances and client 
+ connection details.
+
+ The plugin agent part is based on OpenVPN status log file.
+ In order to work, each server instance is expected to be setup in a separate 
+ folder under the Debian default install /etc/openvpn/server folder.
+ VPN server instances are identified after folder file name (see output example
+ below) and status.log status file is expected to be within the folder
+
+ /etc/openvpn/server
+ ├── serverA
+ │   │
+ │   │ ... serverA stuff here ... 
+ │   │
+ │   └── status.log
+ ├── serverB
+ │   │
+ │   │ ... serverB stuff here ... 
+ │   │
+ │   └── status.log
+ ├── serverC
+ │   │
+ │   │ ... serverC stuff here ... 
+ │   │
+ │   └── status.log
+
+ The agent executes first a version check and outputs it by executing the following:
+ openvpn --version | head -n 1 | awk '{print $2}'
+
+ Then all subdirectories under /etc/openvpn/server are looped, looking for status 
+ log file in its interior. The agent has both log file name and base path files as 
+ variables, so it should be easy to adapt to different folder structures.
+ The status log file is stripped from non-interesting info lines at the moment of 
+ writing the check and the folder name is appended to the output to identify 
+ connections with according server instance.
+
+ All is done in bash. basically, for $file pointing to a status.log file, it does:
+ tail -n +4 $file | sed '/ROUTING/,$d'  | sed -e 's/ /_/g' | sed -e 's/,/ /g' | sed "s/^/${dir##*/} /"
+
+ And, so, here is a sample of final agent output:
+
+ <<<openvpn>>
+ 2.4.0
+ serverA,client1,46.24.18.103:19795,10814332,5517251,Mon Apr 16 07:13:33 2018
+ serverA,client2,62.43.200.180:35351,75029340,38689459,Sun Apr 15 13:18:21 2018
+ serverA,client3,95.60.178.20:33956,45636,18904,Mon Apr 16 10:18:09 2018
+ serverB,client1,80.28.102.18:56464,336119549,174128121,Thu Apr 12 08:41:40 2018
+ serverB,client2,195.53.85.162:49495,131404883,75889318,Fri Apr 13 10:36:44 2018
+ serverB,client3,79.98.220.14:56036,790938696,416160717,Wed Apr  4 14:24:59 2018
+
+
+
+
+ title: openvpn.version
+ description:
+  This check checks current OpenVPN version
+
+ item:
+  Single None item.
+
+ perfdata:
+  no perfdata is generated.
+
+ inventory:
+  In the presence of info, a single None item is 
+  returned
+
+  [parameters]
+  no parameters needed.
+
+  [configuration]
+  no configuration needed.
+
+
+ title: openvpn.servers
+ description:
+  This check checks current OpenVPN instances with, at least one connection
+
+ item:
+  Items are generated from a folder name basis.
+  For every different folder, an item is generated, wich is identified by its name.
+
+ examples:
+  no configuration needed.
+
+ perfdata:
+  no perfdata is generated.
+
+ inventory:
+  inventory function specifically checks values from first column.
+  It groups results identifying all different values to generate items.
+
+  [parameters]
+  no parameters needed.
+
+  [configuration]
+  no configuration needed.
+
+
+  title: centovacast.accounts
+  description:
+   This check gets details from every connection to server.
+
+  item:
+   Items are generated from a certificate common-name basis.
+   Every connection generates an item identified by common-name.
+
+  perfdata:
+   All items generate value perfdata list of tuples for Bytes 
+   transferred, Bytes received, and Connection Age, as days.
+   At this moment, connection age in days is used for perf-o-meter generation
+
+  inventory:
+   inventory function specifically checks values from second column.
+   it yields items having all data in los file for the connection + folder 
+   name of server.
+
+  [parameters]
+  no parameters needed.
+
+  [configuration]
+  no configuration needed.

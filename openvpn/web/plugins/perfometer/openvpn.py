@@ -28,22 +28,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA  02110-1301, USA.
 
-#Environment
+def perfometer_openvpn(row, check_command, perf_data):
+    uptime = perf_data[2][1]
+    return "%d days" % uptime, '<table><tr>' \
+    				+ perfometer_logarithmic(uptime, 30, 2, '#0f0') \
+                            	+ '</tr></table>'
 
-BASEDIR="/etc/openvpn/server/"
-SEARCHDIR="/etc/openvpn/server/*/"
-LOG="/status.log"
 
-echo "<<<openvpn>>>"
-openvpn --version | head -n 1 | awk '{print $2}'
-for dir in ${SEARCHDIR}
-do
-    dir=${dir%*/}
-    file=$BASEDIR${dir##*/}$LOG
-    if [ -s "$file" ]; then
-	read -r firstline < $file
-	if [[ $firstline != *"STATISTICS"*   ]]; then
-            tail -n +4 $file | sed '/ROUTING/,$d'  | sed -e 's/ /_/g' | sed -e 's/,/ /g' | sed "s/^/${dir##*/} /"
-        fi
-    fi
-done
+perfometers['check_mk-openvpn.clients'] = perfometer_openvpn
