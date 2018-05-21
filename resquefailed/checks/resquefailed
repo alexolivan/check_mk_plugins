@@ -1,0 +1,55 @@
+#!/usr/bin/python
+# -*- encoding: utf-8; py-indent-offset: 4 -*-
+# +---------------------------------------------------------------------+
+# |     ____                            _____     _ _          _        |
+# |    |  _ \ ___  ___  __ _ _   _  ___|  ___|_ _(_) | ___  __| |       |
+# |    | |_) / _ \/ __|/ _` | | | |/ _ \ |_ / _` | | |/ _ \/ _` |       |
+# |    |  _ <  __/\__ \ (_| | |_| |  __/  _| (_| | | |  __/ (_| |       |
+# |    |_| \_\___||___/\__, |\__,_|\___|_|  \__,_|_|_|\___|\__,_|       |
+# |                       |_|                                           |
+# |                                                                     |
+# | Copyright Alejandro Olivan 2018                 alex@alexolivan.com |
+# +---------------------------------------------------------------------+
+# | A Check_mk agent to monitor failed queues on RoR/Resque web tool    |
+# | This file contains the check definition / inventory code.           |
+# +---------------------------------------------------------------------+
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, 
+# MA  02110-1301, USA.
+
+# Example output from agent:
+#<<<resquefailed>>>
+#0
+
+def inventory_resquefailed(info):
+    if info:
+        return [(None, {})]
+
+
+def check_resquefailed(item, params, info):
+    if info:
+    	failed = int(info[0][0])
+    	if failed == 0:
+        	return 0, "Failed queues: 0"
+    	else:
+        	return 2, "Failed queues: %s" % info[0][0]
+
+
+check_info["resquefailed"] = {
+    "check_function": check_resquefailed,
+    "inventory_function": inventory_resquefailed,
+    "service_description": "Resque Web failed queues",
+    "has_perfdata": False,
+}

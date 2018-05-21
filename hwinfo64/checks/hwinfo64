@@ -1,0 +1,109 @@
+# -*- coding: utf-8 -*-
+
+import re
+
+# Default fan and temperature values
+hwinfo64_temp_default_values = (40,50)
+hwinfo64_fan_default_values = (500,200)
+
+# Inventory all HWiNFO64 Temperature-type sensors
+def inventory_hwinfo64_temp(info):
+        regex = re.compile("Label(\d)+")
+        for line in info:
+                if len(line) > 3:
+                        m = regex.search(line[0])
+                        if m is not None:
+                                index = m.group(1)
+                                fieldName, fieldValue, fieldUnits = get_hwinfo64(index,info)
+                                if len(fieldUnits) == 2 and fieldUnits.endswith("C"):
+                                        yield fieldName, "hwinfo64_temp_default_values"
+
+# Inventory all HWiNFO64 Fan-type sensors
+def inventory_hwinfo64_fan(info):
+        regex = re.compile("Label(\d)+")
+        for line in info:
+                if len(line) > 3:
+                        m = regex.search(line[0])
+                        if m is not None:
+                                index = m.group(1)
+                                fieldName, fieldValue, fieldUnits = get_hwinfo64(index,info)
+                                if fieldUnits == "RPM":
+                                        yield fieldName, "hwinfo64_fan_default_values"
+
+# Retrieve the data associated with a label index
+def get_hwinfo64(index, info):
+        fieldName = None
+        fieldValue = None
+        fieldUnits = None
+
+        for line in info:
+                if len(line) > 3:
+                        if line[0] == "Label%s" % index:
+                                fieldName = " ".join(line[2:])
+                        if line[0] == "Value%s" % index:
+                                fieldValue = line[2]
+                                fieldUnits = line[3]
+                        if fieldName and fieldValue and fieldUnits:
+                                break
+
+        return fieldName,fieldValue,fieldUnits
+
+# Do a check against HWiNFO data
+def check_hwinfo64_temp(item, params, info):
+        warn, crit = params
+
+        # Find the index that corresponds to the desired item
+        regex = re.compile("Label(\d)+")
+        for line in info:
+                if len(line) > 3 and " ".join(line[2:]) == item:
+                        m = regex.search(line[0])
+                        if m is not None:
+                                index = m.group(1)
+                                fieldName, fieldValue, fieldUnits = get_hwinfo64(index,info)
+                                val = float(fieldValue)
+                                if val > crit:
+                                        return 2, "Temperature is %s %s" % (fieldValue,fieldUnits), [ ( "temp", fieldValue, warn, crit ) ]
+                                elif val > warn:
+                                        return 1, "Temperature is %s %s" % (fieldValue,fieldUnits), [ ( "temp", fieldValue, warn, crit ) ]
+                                else:
+                                        return 0, "Temperature is %s %s" % (fieldValue,fieldUnits), [ ( "temp", fieldValue, warn, crit ) ]
+
+        # If we get here, we never found the named sensor
+        return 3,"Temp Sensor not found"
+
+# Do a check against HWiNFO data
+def check_hwinfo64_fan(item, params, info):
+        warn, crit = params
+
+        # Find the index that corresponds to the desired item
+        regex = re.compile("Label(\d)+")
+        for line in info:
+                if len(line) > 3 and " ".join(line[2:]) == item:
+                        m = regex.search(line[0])
+                        if m is not None:
+                                index = m.group(1)
+                                fieldName, fieldValue, fieldUnits = get_hwinfo64(index,info)
+                                val = float(fieldValue)
+                                if val < crit:
+                                        return 2, "Fan is %s %s" % (fieldValue,fieldUnits), [ ( "fan", fieldValue, warn, crit ) ]
+                                elif val < warn:
+                                        return 1, "Fan is %s %s" % (fieldValue,fieldUnits), [ ( "fan", fieldValue, warn, crit ) ]
+                                else:
+                                        return 0, "Fan is %s %s" % (fieldValue,fieldUnits), [ ( "fan", fieldValue, warn, crit ) ]
+
+        # If we get here, we never found the named sensor
+        return 3,"Fan Sensor not found"
+
+check_info["hwinfo64.temp"] = {
+        'check_function':       check_hwinfo64_temp,
+        'inventory_function':   inventory_hwinfo64_temp,
+        'service_description':  'HWiNFO64 Temp %s',
+        'has_perfdata':         True,
+}
+
+check_info["hwinfo64.fan"] = {
+        'check_function':       check_hwinfo64_fan,
+        'inventory_function':   inventory_hwinfo64_fan,
+        'service_description':  'HWiNFO64 Fan %s',
+        'has_perfdata':         True,
+}

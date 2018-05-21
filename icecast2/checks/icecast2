@@ -82,16 +82,23 @@ def evaluate_icecast2_max_scalar_value(valuestr, valuewarnstr, valuecritstr):
 
 
 def inventory_icecast2(info):
-    for line in info:
-        yield line[0], {}
+	for line in info:
+		if len(line) == 4:
+			yield line[0], {}
+		if len(line) == 5:
+			yield line[0] + " " + line[5], {}
 
 
 def check_icecast2(item, params, info):
-    for line in info:
-    	if line[0] == item:
-    	    status = 0
+	for line in info:
+		if len(line) == 4:
+			checkItem = line[0]
+		if len(line) == 5:
+			checkItem = line[0] + " " + line[5]
+		if checkItem == item:
+			status = 0
     	    perfdata = []
-    	    message = "Icecast 2.4.x, port %s " % item
+    	    message = "Icecast 2.4.x, port %s " % checkItem
     	    for index, value in enumerate(line):
     	        if index == 0:
     	            continue
@@ -112,6 +119,8 @@ def check_icecast2(item, params, info):
                     if result > status:
                         status = result
                     perfdata.append((icecast2_agent_fields[2],value, warn, crit, "", ""))
+                if index > 2:
+                	break
                 message += ", %s: %s" % (icecast2_agent_fields[index], value)
             return status, message, perfdata
 
