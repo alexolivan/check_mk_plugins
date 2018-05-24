@@ -54,7 +54,7 @@ do
     if [ $LISTENIP == "0.0.0.0" ]; then
         LISTENIP="127.0.0.1"
     fi
-    RESULT=`curl http://${LISTENIP}:${PORT}/status-json.xsl -A Mozilla/4.0 -s -I | grep 'Icecast\|icecast'`
+    RESULT=`curl http://${LISTENIP}:${PORT}/status-json.xsl -A Mozilla/4.0 -s -I | grep Icecast`
     if [[ ! $(tr -d "\r\n" <<< $RESULT | wc -c) -eq 0 ]]; then
         RESULT=`curl http://${LISTENIP}:${PORT}/status-json.xsl -A Mozilla/4.0 -s`
         TARGETPROP='listener_peak'
@@ -76,3 +76,5 @@ do
         fi
     fi
 done
+
+
