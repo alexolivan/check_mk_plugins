@@ -20,4 +20,5 @@ The main flaw is that for that reason, the plugins are meant to run on linux, an
 - WowzaStreamEngine (tested with 4.3.0 VHosts)
 - OpenVPN (Multiple instances, so relies on certain Debian9-style folder tree)
 - Resque Web failed Queues (For Rails apps... tested on Reque v1.25.2)
+- AudiosScience Professional Sound Cards (Debian/Linux using hpklinux 4.20.16/asi-python)
  
