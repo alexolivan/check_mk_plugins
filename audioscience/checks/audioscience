@@ -1,0 +1,185 @@
+#!/usr/bin/python
+# -*- encoding: utf-8; py-indent-offset: 4 -*-
+# +---------------------------------------------------------------------+
+# |        _             _ _      ____       _                          |
+# |       / \  _   _  __| (_) ___/ ___|  ___(_) ___ _ __   ___ ___      |
+# |      / _ \| | | |/ _` | |/ _ \___ \ / __| |/ _ \ '_ \ / __/ _ \     |
+# |     / ___ \ |_| | (_| | | (_) |__) | (__| |  __/ | | | (_|  __/     |
+# |    /_/   \_\__,_|\__,_|_|\___/____/ \___|_|\___|_| |_|\___\___|     |
+# |                                                                     |
+# | Copyright Alejandro Olivan 2018                 alex@alexolivan.com |
+# +---------------------------------------------------------------------+
+# | A Check_mk agent to monitor AudioScience cards on Debian systems    |
+# | This file contains plugin agent definition .                        |
+# +---------------------------------------------------------------------+
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+# MA  02110-1301, USA.
+
+# Example output from agent
+# <<<audioscience>>>
+# Adapter0_INFO ASI5740, serial 107131, SW version 4.20.16, HW version F7, 4 inputs, 4 outputs
+# Adapter0_TEMP 74.0
+# Adapter0_LOAD 17
+
+
+factory_settings["audiosciece_default_levels"] = {
+    "temp" : (65,75),
+    "dspload" : (75,85)
+}
+
+
+def evaluate_audioscience_scalar_value(valuestr, valuewarnstr, valuecritstr):
+    value = int(valuestr)
+    valuewarn = int(valuewarnstr)
+    valuecrit = int(valuecritstr)
+    if valuewarn != 0 or valuecrit != 0:
+        if value < valuewarn:
+            return 0
+        elif value < valuecrit:
+            return 1
+        else:
+            return 2
+    else:
+        return 0
+
+
+def evaluate_audioscience_float_value(valuestr, valuewarnstr, valuecritstr):
+    value = float(valuestr)
+    valuewarn = float(valuewarnstr)
+    valuecrit = float(valuecritstr)
+    if valuewarn != 0 or valuecrit != 0:
+        if value < valuewarn:
+            return 0
+        elif value < valuecrit:
+            return 1
+        else:
+            return 2
+    else:
+        return 0
+
+
+
+# +-------------------------------------------------------------------+
+# |                          _        __                              |
+# |                         (_)_ __  / _| ___                         |
+# |                         | | '_ \| |_ / _ \                        |
+# |                        _| | | | |  _| (_) |                       |
+# |                       (_)_|_| |_|_|  \___/                        |
+# |                                                                   |
+# +-------------------------------------------------------------------+
+# | Check detected adapters information.                              |
+# +-------------------------------------------------------------------+
+
+def inventory_audioscience_info(info):
+    for line in info:
+        if "INFO" in line[0]:
+            yield line[0], None
+
+
+def check_audioscience_info(item, params, info):
+    for line in info:
+        if line[0] == item:
+            line.pop(0)
+            return 0, ' '.join(line)
+
+
+check_info["audiosciece.info"] = {
+    'check_function': check_audioscience_info,
+    'inventory_function': inventory_audioscience_info,
+    'service_description': 'AudioScience Adapters Information',
+}
+
+
+# +-------------------------------------------------------------------+
+# |    _                                      _                       |
+# |   | |_ ___ _ __ ___  _ __   ___ _ __ __ _| |_ _   _ _ __ ___      |
+# |   | __/ _ \ '_ ` _ \| '_ \ / _ \ '__/ _` | __| | | | '__/ _ \     |
+# |   | ||  __/ | | | | | |_) |  __/ | | (_| | |_| |_| | | |  __/     |
+# |  (_)__\___|_| |_| |_| .__/ \___|_|  \__,_|\__|\__,_|_|  \___|     |
+# |                     |_|                                           |
+# +-------------------------------------------------------------------+
+# | Check detected adapters board temperature.                        |
+# +-------------------------------------------------------------------+
+
+def inventory_audioscience_temp(info):
+    for line in info:
+        if "TEMP" in line[0]:
+            yield line[0], None
+
+
+def check_audioscience_temp(item, params, info):
+    if type(params) != dict:
+        params = { item : params }
+    tempwarn, tempcrit = params["temp"]
+
+    for line in info:
+        if line[0] == item:
+            perfdata = []
+            status = evaluate_audioscience_float_value(line[1], tempwarn, tempcrit)
+            perfdata.append(("temp", line[1], tempwarn, tempcrit, 0, 100))
+            message = "Adapter temperature: %s C" % line[1]
+            return status, message, perfdata
+
+
+check_info["audiosciece.temperature"] = {
+    'check_function': check_audioscience_temp,
+    'inventory_function': inventory_audioscience_temp,
+    'service_description': 'AudioScience Adapters Temperature',
+    'has_perfdata': True,
+    "group": "audioscience_temp",
+    "default_levels_variable": "audioscience_default_levels",
+}
+
+
+# +-------------------------------------------------------------------+
+# |                   _           _                 _                 |
+# |                __| |___ _ __ | | ___   __ _  __| |                |
+# |               / _` / __| '_ \| |/ _ \ / _` |/ _` |                |
+# |              | (_| \__ \ |_) | | (_) | (_| | (_| |                |
+# |             (_)__,_|___/ .__/|_|\___/ \__,_|\__,_|                |
+# |                        |_|                                        |
+# +-------------------------------------------------------------------+
+# | Check detected adapters board DSP load.                           |
+# +-------------------------------------------------------------------+
+
+def inventory_audioscience_dspload(info):
+    for line in info:
+        if "LOAD" in line[0]:
+            yield line[0], None
+
+
+def check_audioscience_dspload(item, params, info):
+    if type(params) != dict:
+        params = { item : params }
+    dsploadwarn, dsploadcrit = params["dspload"]
+
+    for line in info:
+        if line[0] == item:
+            perfdata = []
+            status = evaluate_audioscience_scalar_value(line[1], dsploadwarn, dsploadcrit)
+            perfdata.append(("dspload", line[1], dsploadwarn, dsploadcrit, 0, 100))
+            message = "Adapter DSP load: %s %%" % line[1]
+            return status, message, perfdata
+
+
+check_info["audiosciece.dspload"] = {
+    'check_function': check_audioscience_dspload,
+    'inventory_function': inventory_audioscience_dspload,
+    'service_description': 'AudioScience Adapters DSP Load',
+    'has_perfdata': True,
+    "group": "audioscience_dspload",
+    "default_levels_variable": "audioscience_default_levels",
+}

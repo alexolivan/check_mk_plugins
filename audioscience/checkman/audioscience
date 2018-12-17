@@ -1,0 +1,123 @@
+title: audioscience
+agents: linux (just tested on Debian Linux)
+catalog: "app","Applications"
+license: GPL
+distribution:
+
+description:
+ This plugin is intended to check health of AudioScience professional
+ sound cards under Linux.
+ It has been tested on Linux Debian estable (Stretch) using official, hpklinux
+ 4.20.16 dkms-alsa driver (which is now dual and provides asi-python).
+ The plugin needs to have python cli tool hpicontrol.py working.
+ It includes 3 subplugins: .info, .temperature and .dspload
+ to process separately different agent output line types that
+ correspond to adapter information, adapter temperature, and adapter
+ DSP load/usage.
+
+ The agent plugin relies entirelly on hpicontrol.py tool. This means that
+ either hpi native driver is installed, or if using ALSA driver, the hpi
+ library is compiled, and the asi-python tools installed.
+
+ The agent first scans for installed adpaters on system using
+ hpicontrol.py list | grep 'Local adapters' | awk '{print $3}'
+
+ Then it will iterate on every adapter with index X
+ - querying it for basic information:
+ hpicontrol.py -a X info | head -n 1 | sed 's/^.*\(ASI*\)/\1/g'
+ - querying it for board temperature sensor read:
+ hpicontrol.py -a X cget 11 | grep '\-\-float value' | awk '{print $3}'
+ - querying it for board DSP usage/load read:
+ hpicontrol.py -a X cget 10 | grep '\-\-int value' | awk '{print $3}'
+
+ And, so, here is a sample of final agent output:
+
+ <<<audioscience>>>
+ Adapter0_INFO ASI5740, serial 107131, SW version 4.20.16, HW version F7, 4 inputs, 4 outputs
+ Adapter0_TEMP 74.0
+ Adapter0_LOAD 17
+
+
+
+title: audioscience.info
+ description:
+  This check checks Sound card model and basic information.
+
+ item:
+  Single None item.
+
+ examples:
+  no configuration needed.
+
+ perfdata:
+  no perfdta is generated.
+
+ inventory:
+  In the presence of info, a single None item is
+  returned
+
+  [parameters]
+  no parameters needed.
+
+  [configuration]
+  no configuration needed.
+
+
+title: audioscience.temperature
+  description:
+   This check gets soundcard onboard temperature sensor read.
+
+  item:
+   Items are generated from an adapter index basis.
+   Every Adapter found generates an item which is identified by its name + index.
+
+  examples:
+   audioscience_default_levels[0] = (50, 75)
+
+  perfdata:
+   All items generate value, warn, crit perfdata list of tuples.
+
+  inventory:
+   inventory function specifically filters column string from
+   agent output to generate items.
+   it yields items with audioscience_default_levels full list
+
+  [parameters]
+   Parameters are common in all module via the list of tuples
+   audioscience_default_levels
+
+   'temperature' -> audioscience_default_levels[0]
+
+  [configuration]
+   no configuration needed.
+   Can be configured via WATO.
+
+
+title: audioscience.dspload
+ description:
+  This check gets soundcard onboard DSP usage/load.
+
+ item:
+  Items are generated from an adapter index basis.
+  Every Adapter found generates an item which is identified by its name + index.
+
+ examples:
+  audioscience_default_levels[1] = (50, 75)
+
+ perfdata:
+  All items generate value, warn, crit perfdata list of tuples.
+
+ inventory:
+  inventory function specifically filters column string from
+  agent output to generate items.
+  it yields items with audioscience_default_levels full list
+
+ [parameters]
+  Parameters are common in all module via the list of tuples
+  audioscience_default_levels
+
+  'dspload' -> audioscience_default_levels[1]
+
+ [configuration]
+  no configuration needed.
+  Can be configured via WATO.
