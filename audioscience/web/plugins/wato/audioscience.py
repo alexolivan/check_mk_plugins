@@ -30,7 +30,7 @@
 
 
 group = "checkparams"
-subgroup_applications = _("Applications, Processes & Services")
+subgroup_audio = _("Audio, Video and multimedia")
 
 
 register_check_parameters(
