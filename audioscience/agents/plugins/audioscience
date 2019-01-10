@@ -37,12 +37,17 @@ if hash $HPICONTROL  2>/dev/null; then
     echo '<<<audioscience>>>'
     for (( i=0; i<$CARDS; i++ ))
     do
+        CARD=`/usr/local/bin/hpicontrol.py -a ${i} info | head -n 1 | awk '{print $3}' | sed 's/,*$//g'`
         ADAPTER="Adapter${i}"
-	INFO=`$HPICONTROL -a $i info | head -n 1 | sed 's/^.*\(ASI*\)/\1/g'`
-    echo "${ADAPTER}_INFO $INFO"
-	TEMP=`$HPICONTROL -a $i cget 11 | grep '\-\-float value' | awk '{print $3}'`
-	echo "${ADAPTER}_TEMP $TEMP"
-    LOAD=`$HPICONTROL -a $i cget 10 | grep '\-\-int value' | awk '{print $3}'`
-    echo "${ADAPTER}_LOAD $LOAD"
+
+	    INFO=`$HPICONTROL -a $i info | head -n 1 | sed 's/^.*\(ASI*\)/\1/g'`
+        echo "${ADAPTER}_INFO $INFO"
+
+        if [ "$CARD" == "ASI5720" ] || [ "$CARD" == "5740" ] || [ "$CARD" == "5788" ]; then
+	        TEMP=`$HPICONTROL -a $i cget 11 | grep '\-\-float value' | awk '{print $3}'`
+	        echo "${ADAPTER}_TEMP $TEMP"
+            LOAD=`$HPICONTROL -a $i cget 10 | grep '\-\-int value' | awk '{print $3}'`
+            echo "${ADAPTER}_LOAD $LOAD"
+        fi
     done
 fi
