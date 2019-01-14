@@ -48,6 +48,9 @@ if hash $HPICONTROL  2>/dev/null; then
 	        echo "${ADAPTER}_TEMP $TEMP"
             LOAD=`$HPICONTROL -a $i cget 10 | grep '\-\-int value' | awk '{print $3}'`
             echo "${ADAPTER}_LOAD $LOAD"
+        else
+           LOAD=`$HPICONTROL -a $i info | grep DSP | awk '{print $5}'`
+           echo "${ADAPTER}_LOAD $LOAD"
         fi
     done
 fi

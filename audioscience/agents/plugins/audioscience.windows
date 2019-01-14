@@ -1,0 +1,56 @@
+#!/usr/bin/python
+# -*- encoding: utf-8; py-indent-offset: 4 -*-
+
+# Imports
+import os
+import subprocess
+
+driverVersion = "4.20.12"
+hpipath = "C:\Program Files (x86)\AudioScience\Drivers\Version " + driverVersion + "\Python"
+cardcount = 0
+
+os.chdir(hpipath)
+cmd = ["hpicontrol.py", "list"]
+result = subprocess.Popen(cmd, shell=True,
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE,
+    stdin=subprocess.PIPE)
+lines = result.stdout.readlines()
+
+for line in lines:
+    if 'Local adapters' in line:
+        cardcount = int(line.split(" ")[2])
+
+if cardcount >= 1:
+    print '<<<audioscience>>>'
+
+for i in range(cardcount):
+    cmd = ["hpicontrol.py", "-a", str(i), "info"]
+    result = subprocess.Popen(cmd, shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        stdin=subprocess.PIPE)
+    lines = result.stdout.readlines()
+    card = lines[0].split()[2].rstrip(',')
+    info = lines[0].split('ASI')[1].strip()
+    adapter = "Adapter" + str(i)
+    print adapter + "_INFO ASI" + info
+    if card in ('ASI5620', 'ASI5640'):
+        for line in lines:
+            if 'DSP' in line:
+                print adapter + "_LOAD " + line.split()[-1]
+    else:
+        tmpCmd = ["hpicontrol.py", "-a", str(i), "cget", "11"]
+        tmpResult = subprocess.Popen(tmpCmd, shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            stdin=subprocess.PIPE)
+        tmpLines = tmpResult.stdout.readlines()
+        print adapter + "_TEMP"
+        loadCmd =  ["hpicontrol.py", "-a", str(i), "cget", "10"]
+        loadResult = subprocess.Popen(loadCmd, shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            stdin=subprocess.PIPE)
+        loadLines = loadResult.stdout.readlines()
+        print adapter + "_LOAD"
