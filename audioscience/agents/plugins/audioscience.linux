@@ -6,7 +6,7 @@
 # |     / ___ \ |_| | (_| | | (_) |__) | (__| |  __/ | | | (_|  __/     |
 # |    /_/   \_\__,_|\__,_|_|\___/____/ \___|_|\___|_| |_|\___\___|     |
 # |                                                                     |
-# | Copyright Alejandro Olivan 2018                 alex@alexolivan.com |
+# | Copyright Alejandro Olivan 2019                 alex@alexolivan.com |
 # +---------------------------------------------------------------------+
 # | A Check_mk agent to monitor AudioScience cards on Debian systems    |
 # | This file contains plugin agent definition .                        |
@@ -32,25 +32,26 @@ HPICONTROL="/usr/local/bin/hpicontrol.py"
 
 if hash $HPICONTROL  2>/dev/null; then
 
-    CARDS=`$HPICONTROL list | grep 'Local adapters' | awk '{print $3}'`
+    CARDIDS=(`$HPICONTROL list 2>/dev/null | grep 'ASI' | sort -n | uniq -c | awk '{print $2}'`)
 
     echo '<<<audioscience>>>'
-    for (( i=0; i<$CARDS; i++ ))
+    for i in "${CARDIDS[@]}"
     do
-        CARD=`/usr/local/bin/hpicontrol.py -a ${i} info | head -n 1 | awk '{print $3}' | sed 's/,*$//g'`
+        CARD=`/usr/local/bin/hpicontrol.py -a ${i} info 2>/dev/null | head -n 1 | awk '{print $3}' | sed 's/,*$//g'`
         ADAPTER="Adapter${i}"
 
-	    INFO=`$HPICONTROL -a $i info | head -n 1 | sed 's/^.*\(ASI*\)/\1/g'`
+	    INFO=`$HPICONTROL -a $i info 2>/dev/null | head -n 1 | sed 's/^.*\(ASI*\)/\1/g'`
         echo "${ADAPTER}_INFO $INFO"
 
         if [ "$CARD" == "ASI5720" ] || [ "$CARD" == "5740" ] || [ "$CARD" == "5788" ]; then
-	        TEMP=`$HPICONTROL -a $i cget 11 | grep '\-\-float value' | awk '{print $3}'`
+	        TEMP=`$HPICONTROL -a $i cget 11 2>/dev/null | grep '\-\-float value' | awk '{print $3}'`
 	        echo "${ADAPTER}_TEMP $TEMP"
-            LOAD=`$HPICONTROL -a $i cget 10 | grep '\-\-int value' | awk '{print $3}'`
+            LOAD=`$HPICONTROL -a $i cget 10 2>/dev/null | grep '\-\-int value' | awk '{print $3}'`
             echo "${ADAPTER}_LOAD $LOAD"
         else
-           LOAD=`$HPICONTROL -a $i info | grep DSP | awk '{print $5}'`
+           LOAD=`$HPICONTROL -a $i info 2>/dev/null | grep DSP | awk '{print $5}'`
            echo "${ADAPTER}_LOAD $LOAD"
         fi
     done
 fi
+
