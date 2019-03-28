@@ -57,22 +57,25 @@ if content:
 		        listenurls.append(match)
 
 		url = "http://%s:%s/status-json.xsl" % (parts[0], parts[1])
-		response = urllib2.urlopen(url).read()
-		re.sub(r"(listeners\"\:\d+,)", handle_listeners, response)
-                re.sub(r"(listener_peak\"\:\d+,)", handle_listener_peak, response)
-                re.sub(r"(listenurl\"\:\".*?\")", handle_listenurl, response)
-	
-		if len(listenurls) > 0:
-			for index, listenurl in enumerate(listenurls):
-				mountpoint = str(listenurl.groups()).split('/')[-1].rsplit("\"")[0]
-				try:
-					listener_peak_val = str(listener_peaks[index].groups()).split(":")[1].split(",")[0]
-				except:
-					listener_peak_val = "0"			
-				try:
-	                                listeners_val = str(listeners[index].groups()).split(":")[1].split(",")[0]
-	                        except:
-	                                listeners_val = "0"
-				print parts[1] + " " + listeners_val + " 1 " + listener_peak_val + " " + mountpoint
-		else:
-			print parts[1] + " 0 0 0"
+        try:
+		    response = urllib2.urlopen(url).read()
+		    re.sub(r"(listeners\"\:\d+,)", handle_listeners, response)
+                    re.sub(r"(listener_peak\"\:\d+,)", handle_listener_peak, response)
+                    re.sub(r"(listenurl\"\:\".*?\")", handle_listenurl, response)
+	    
+		    if len(listenurls) > 0:
+			    for index, listenurl in enumerate(listenurls):
+				    mountpoint = str(listenurl.groups()).split('/')[-1].rsplit("\"")[0]
+				    try:
+					    listener_peak_val = str(listener_peaks[index].groups()).split(":")[1].split(",")[0]
+				    except:
+					    listener_peak_val = "0"			
+				    try:
+	                                    listeners_val = str(listeners[index].groups()).split(":")[1].split(",")[0]
+	                            except:
+	                                    listeners_val = "0"
+				    print parts[1] + " " + listeners_val + " 1 " + listener_peak_val + " " + mountpoint
+		    else:
+			    print parts[1] + " 0 0 0"
+        catch:
+            pass
