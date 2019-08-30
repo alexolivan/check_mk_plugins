@@ -68,12 +68,12 @@ factory_settings["centovacast_default_levels"] = {
 def evaluate_centovacast_max_scalar_value(valuestr, maxstr, valuewarnstr, valuecritstr):
     value = int(valuestr)
     maxim = int(maxstr)
+    if maxim <= 0:
+        return 0
     usage = int(value / float(maxim) * 100)
     valuewarn = int(valuewarnstr)
     valuecrit = int(valuecritstr)
-    if maxim < 0:
-        return 0
-    elif valuewarn != 0 or valuecrit != 0:
+    if valuewarn != 0 or valuecrit != 0:
         if usage > valuecrit:
             return 2
         elif usage > valuewarn:
@@ -82,6 +82,7 @@ def evaluate_centovacast_max_scalar_value(valuestr, maxstr, valuewarnstr, valuec
             return 0
     else:
         return 0
+
 
 
 # +-------------------------------------------------------------------+
