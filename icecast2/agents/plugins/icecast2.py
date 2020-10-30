@@ -80,7 +80,7 @@ def parseStatFile(port, file, mountpoint):
     	status = 0
         listeners = 0
         listenerPeak = 0
-    results.append((port, listeners, status, listenerPeak))
+    results.append((port, listeners, status, listenerPeak, mountpoint))
 
 
 def parseStatFiles():
