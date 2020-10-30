@@ -26,7 +26,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, 
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA  02110-1301, USA.
 
 import urllib2
@@ -34,8 +34,9 @@ import base64
 import os
 
 customers = (
-    {'host': '127.0.0.1', 'port': '7000', 'mountpoint':'radiomarca.mp3', 'adminuser': 'admin', 'adminpass': 'ladesiempre'},
-    {'host': '127.0.0.1', 'port': '7000', 'mountpoint':'link_rmarca.mp3', 'adminuser': 'admin', 'adminpass': 'ladesiempre'},
+    {'host': '127.0.0.1', 'port': '8000', 'mountpoint':'myradio.mp3', 'adminuser': 'admin', 'adminpass': 'verysecret1'},
+    {'host': '127.0.0.1', 'port': '8000', 'mountpoint':'myradio.aac', 'adminuser': 'admin', 'adminpass': 'verysecret1'},
+    {'host': '127.0.0.1', 'port': '8002', 'mountpoint':'transport.mp3', 'adminuser': 'admin', 'adminpass': 'verysecret2'},
 	)
 
 results = []
@@ -49,14 +50,14 @@ def downloadStatsfiles():
         request = urllib2.Request(url)
         base64string = base64.encodestring('%s:%s' % (d['adminuser'], d['adminpass'])).replace('\n', '')
         request.add_header("Authorization", "Basic %s" % base64string)
-        try: 
+        try:
             s = urllib2.urlopen(request)
             contents = s.read()
             file = open(filename, 'w')
             file.write(contents)
             file.close()
             filelist.append({'port': d['port'], 'filename': filename, 'mountpoint': d['mountpoint']})
-        except urllib2.error.URLError as e:
+        except:
             pass
 
 
@@ -69,7 +70,7 @@ def parseStatFile(port, file, mountpoint):
         for source in xmldoc.getElementsByTagName('source'):
             if source.hasAttribute('mount') and source.getAttribute('mount') == "/%s" % mountpoint:
                 listenersElement = source.getElementsByTagName('listeners')
-                listeners = listenersElement[0].firstChild.nodeValue 
+                listeners = listenersElement[0].firstChild.nodeValue
                 peakListenerElement = source.getElementsByTagName('listener_peak')
                 listenerPeak = peakListenerElement[0].firstChild.nodeValue
             else:
@@ -79,7 +80,7 @@ def parseStatFile(port, file, mountpoint):
     	status = 0
         listeners = 0
         listenerPeak = 0
-    results.append((port, listeners, status, listenerPeak, mountpoint))    	
+    results.append((port, listeners, status, listenerPeak))
 
 
 def parseStatFiles():
@@ -98,10 +99,7 @@ def printResults():
 
 def deleteUsedFiles():
 	for file in filelist:
-		try:
-			os.remove(file['filename'])
-		except OSError:
-			pass
+		os.remove(file['filename'])
 
 
 def mainFunction():
@@ -112,4 +110,3 @@ def mainFunction():
 
 
 mainFunction()
-
